@@ -12,7 +12,7 @@ classifiers = ["Programming Language :: Python :: 3"]
 readme = "README.md"
 dynamic = ["version"]
 
-dependencies = ["antspyx >= 0.5", "numpy", "pandas", "SimpleITK"]
+dependencies = ["antspyx >= 0.5", "numpy", "pandas", "SimpleITK", 'vtk >= 9, < 10']
 
 [project.optional-dependencies]
 dev = ['black', 'coverage', 'flake8', 'interrogate', 'isort', 'Sphinx', 'furo']
