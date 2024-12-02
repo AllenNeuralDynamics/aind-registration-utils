@@ -5,13 +5,13 @@ import numpy as np
 import pandas as pd
 
 
-def apply_ants_transforms_to_point_dict(pts_dict, transformlist, **kwargs):
+def apply_ants_transforms_to_point_dict(pts_dict, transform_list, **kwargs):
     """
     Apply ANTs spatial transforms to a dictionary of points.
 
     This function takes a dictionary of labeled points, applies a series of
-    spatial transformations provided in `transformlist` using ANTs, and returns
-    the transformed points in a new dictionary with the same labels.
+    spatial transformations provided in `transform_list` using ANTs, and
+    returns the transformed points in a new dictionary with the same labels.
 
     Parameters
     ----------
@@ -19,7 +19,7 @@ def apply_ants_transforms_to_point_dict(pts_dict, transformlist, **kwargs):
         Dictionary where the keys are point labels and the values are 3D points
         as (x, y, z) sequences. Example: {'pt1': [10, 20, 30], 'pt2': [40, 50,
         60]}
-    transformlist : list
+    transform_list : list
         List of spatial transformation filenames to apply to the points. The
         transformations are applied in the order they are provided.
     **kwargs :
@@ -48,7 +48,7 @@ def apply_ants_transforms_to_point_dict(pts_dict, transformlist, **kwargs):
         }
     )
     tx_pt_df = ants.apply_transforms_to_points(
-        3, pt_df, transformlist, **kwargs
+        3, pt_df, transform_list, **kwargs
     )
     tx_pts_dict = {
         k: tx_pt_df.iloc[i, :].values for i, k in enumerate(pts_dict.keys())
@@ -61,12 +61,7 @@ def ants_register_syn(
     moving_img,
     rigid_kwargs=dict(),
     affine_kwargs=dict(),
-    syn_kwargs=dict(
-        aff_metric="CC",
-        syn_metric="CC",
-        syn_sampling=2,
-        reg_iterations=(500, 200, 10),
-    ),
+    syn_kwargs=dict(),
     syn_save_prefix="",
 ):
     """
@@ -103,27 +98,38 @@ def ants_register_syn(
     >>> moving = ants.image_read('path/to/moving_image.nii.gz')
     >>> syn_results = ants_register_syn_cc(fixed, moving, 'output_prefix_')
     """
+    syn_kwargs_def = dict(
+        syn_metric="CC",
+        syn_sampling=2,
+        reg_iterations=(1000, 500, 500),
+    )
+    syn_comb_kwargs = {**syn_kwargs_def, **syn_kwargs}
+
+    rigid_affine_kwargs_def = dict(aff_smoothing_sigmas=[3, 2, 1, 0])
+    rigid_comb_kwargs = {**rigid_affine_kwargs_def, **rigid_kwargs}
+    affine_comb_kwargs = {**rigid_affine_kwargs_def, **affine_kwargs}
 
     tx_rigid = ants.registration(
         fixed=fixed_img,
         moving=moving_img,
         type_of_transform="Rigid",
-        **rigid_kwargs,
+        **rigid_comb_kwargs,
     )
     tx_affine = ants.registration(
         fixed=fixed_img,
         moving=moving_img,
         initial_transform=tx_rigid["fwdtransforms"][0],
         type_of_transform="Affine",
-        **affine_kwargs,
+        **affine_comb_kwargs,
     )
+    print(f"syn kwargs is {syn_comb_kwargs}")
     tx_syn = ants.registration(
         fixed=fixed_img,
         moving=moving_img,
         initial_transform=tx_affine["fwdtransforms"][0],
         outprefix=str(syn_save_prefix),
         type_of_transform="SyN",
-        **syn_kwargs,
+        **syn_comb_kwargs,
     )
     return tx_syn
 
