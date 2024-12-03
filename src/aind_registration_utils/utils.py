@@ -2,8 +2,8 @@
 Utility functions
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
 
 
 def check_output_path(output_path=None):

@@ -3,14 +3,14 @@ Contains common registration recipes
 """
 
 import ants
-
 from aind_mri_utils.file_io.slicer_files import (
-    markup_json_to_dict,
     create_slicer_fcsv,
+    markup_json_to_dict,
 )
+
 from aind_registration_utils.ants import (
-    apply_ants_transforms_to_point_dict,
     ants_register_syn,
+    apply_ants_transforms_to_point_dict,
 )
 from aind_registration_utils.utils import check_output_path
 

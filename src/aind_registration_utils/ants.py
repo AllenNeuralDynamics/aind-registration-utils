@@ -155,8 +155,8 @@ def combine_syn_txs(
     mouse_img_masked : ants.ANTsImage
         The masked mouse image to be aligned.
     mouse_invivo_tx_syn : dict
-        Dictionary containing the forward and inverse transformations between the
-        mouse image and the in vivo image.
+        Dictionary containing the forward and inverse transformations between
+        the mouse image and the in vivo image.
     mouse_invivo_prefix : str
         Prefix for the output files of the mouse-to-in vivo combined
         transformation.
