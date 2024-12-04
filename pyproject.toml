@@ -24,6 +24,9 @@ dependencies = [
 [project.optional-dependencies]
 dev = ['black', 'coverage', 'flake8', 'interrogate', 'isort', 'Sphinx', 'furo']
 
+[project.scripts]
+register_individual_to_template = "aind_registration_utils.scripts.register_individual_to_template:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
