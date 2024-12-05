@@ -1,3 +1,7 @@
+"""
+Module for ANTs (Advanced Normalization Tools) registration utilities.
+"""
+
 import ants
 import numpy as np
 
