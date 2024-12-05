@@ -10,6 +10,31 @@ from aind_registration_utils.recipes import (
 
 
 def parse_args():
+    """
+    Parse command-line arguments.
+
+    Returns
+    -------
+    argparse.Namespace
+        Parsed command-line arguments.
+
+    Parameters
+    ----------
+    individual : str
+        Path to the image of an individual.
+    mask : str
+        Path to the brain mask of an individual.
+    template : str
+        Path to the image of the template.
+    targets : str
+        Path to the targets in the template space.
+    output : str, optional
+        Output directory.
+    mouse : str, optional
+        Mouse ID.
+    force : bool, optional
+        Force overwrite. Default is False.
+    """
     parser = argparse.ArgumentParser(
         description=(
             "Find the transformation from an individual image to a "
@@ -37,6 +62,22 @@ def parse_args():
 
 
 def main():
+    """
+    Main function to parse arguments and register an individual to a template
+    using points files.
+
+    This function parses command-line arguments and calls the
+    `individual_to_template_with_points_files` function with the provided
+    arguments.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
     args = parse_args()
     individual_to_template_with_points_files(
         args.individual,
