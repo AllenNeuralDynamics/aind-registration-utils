@@ -1,11 +1,12 @@
 # %%
 from pathlib import Path
+
+import ants
+from aind_mri_utils.file_io.slicer_files import markup_json_to_dict
+
 from aind_registration_utils.recipes import (
     individual_to_template_with_points_files,
 )
-from aind_mri_utils.file_io.slicer_files import markup_json_to_dict
-import ants
-from matplotlib import pyplot as plt
 
 # %%
 template_dir = Path("/mnt/Data/MRI/templates")
