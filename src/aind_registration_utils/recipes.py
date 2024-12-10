@@ -129,7 +129,7 @@ def individual_to_template_with_points_files(
             syn_kwargs=syn_kwargs,
         )
     )
-    create_slicer_fcsv(pts_in_individual, save_dir / pt_save_name)
+    create_slicer_fcsv(save_dir / pt_save_name, pts_in_individual)
     ants.image_write(
         individual_template_tx_syn["warpedmovout"],
         save_dir / individual_in_template_save_name,
