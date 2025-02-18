@@ -35,7 +35,7 @@ individual_to_template_with_points_files(
     template_path,
     template_targets,
     save_dir=save_dir,
-    mouse_id=mouse_id,
+    mouse_name=mouse_id,
     syn_kwargs=syn_kwargs,
 )
 

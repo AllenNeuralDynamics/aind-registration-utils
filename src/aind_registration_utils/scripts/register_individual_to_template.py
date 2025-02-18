@@ -85,7 +85,7 @@ def main():
         args.template,
         args.targets,
         args.output,
-        mouse_id=args.mouse,
+        mouse_name=args.mouse,
     )
 
 
