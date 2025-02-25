@@ -19,7 +19,7 @@ def individual_to_template_with_points(
     individual,
     template,
     pts_in_template,
-    output_prefix,
+    output_prefix="",
     syn_kwargs=dict(),
 ):
     """
@@ -59,8 +59,7 @@ def individual_to_template_with_points(
     )
     pts_in_individual = apply_ants_transforms_to_point_dict(
         pts_in_template,
-        moving_fixed_tx_syn["invtransforms"],
-        whichtoinvert=[True, False],
+        moving_fixed_tx_syn["fwdtransforms"],
     )
     return moving_fixed_tx_syn, pts_in_individual
 
@@ -71,7 +70,7 @@ def individual_to_template_with_points_files(
     template_path,
     template_targets,
     save_dir=None,
-    mouse_id=None,
+    mouse_name=None,
     syn_kwargs=dict(),
 ):
     """
@@ -106,13 +105,13 @@ def individual_to_template_with_points_files(
     pt_save_name = "targets-from-template.fcsv"
     individual_in_template_save_name = "individual-in-template.nii.gz"
     template_in_individual_save_name = "template-in-individual.nii.gz"
-    if mouse_id is not None:
-        pt_save_name = f"{mouse_id}-{pt_save_name}"
+    if mouse_name is not None:
+        pt_save_name = f"{mouse_name}-{pt_save_name}"
         individual_in_template_save_name = (
-            f"{mouse_id}-{individual_in_template_save_name}"
+            f"{mouse_name}-{individual_in_template_save_name}"
         )
         template_in_individual_save_name = (
-            f"{mouse_id}-{template_in_individual_save_name}"
+            f"{mouse_name}-{template_in_individual_save_name}"
         )
     mouse_img = ants.image_read(str(individual_scan))
     mouse_img_mask = ants.image_read(str(individual_brain_mask))
@@ -132,9 +131,9 @@ def individual_to_template_with_points_files(
     create_slicer_fcsv(save_dir / pt_save_name, pts_in_individual)
     ants.image_write(
         individual_template_tx_syn["warpedmovout"],
-        save_dir / individual_in_template_save_name,
+        str(save_dir / individual_in_template_save_name),
     )
     ants.image_write(
         individual_template_tx_syn["warpedfixout"],
-        save_dir / template_in_individual_save_name,
+        str(save_dir / template_in_individual_save_name),
     )

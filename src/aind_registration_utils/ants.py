@@ -2,6 +2,8 @@
 Module for ANTs (Advanced Normalization Tools) registration utilities.
 """
 
+from pathlib import Path
+
 import ants
 import numpy as np
 
@@ -60,6 +62,30 @@ def apply_ants_transforms_to_point_dict(pts_dict, transform_list, **kwargs):
     return tx_pts_dict
 
 
+def _check_ants_prefix(prefix):
+    """
+    Checks and formats the given ANTs prefix.
+
+    Parameters
+    ----------
+    prefix : str
+        The prefix to check and format.
+
+    Returns
+    -------
+    str
+        The formatted prefix string. If the prefix is a directory, the
+        directory path is concatenated with its anchor. Otherwise, the prefix
+        is returned as a string.
+    """
+    prefix_path = Path(prefix)
+    if prefix_path.is_dir():
+        prefix_str = str(prefix_path) + prefix_path.anchor
+    else:
+        prefix_str = str(prefix_path)
+    return prefix_str
+
+
 def ants_register_syn(
     fixed_img,
     moving_img,
@@ -108,7 +134,7 @@ def ants_register_syn(
         reg_iterations=(1000, 500, 500),
     )
     syn_comb_kwargs = {**syn_kwargs_def, **syn_kwargs}
-
+    syn_save_prefix_str = _check_ants_prefix(syn_save_prefix)
     rigid_affine_kwargs_def = dict(aff_smoothing_sigmas=[3, 2, 1, 0])
     rigid_comb_kwargs = {**rigid_affine_kwargs_def, **rigid_kwargs}
     affine_comb_kwargs = {**rigid_affine_kwargs_def, **affine_kwargs}
@@ -131,7 +157,7 @@ def ants_register_syn(
         fixed=fixed_img,
         moving=moving_img,
         initial_transform=tx_affine["fwdtransforms"][0],
-        outprefix=str(syn_save_prefix),
+        outprefix=syn_save_prefix_str,
         type_of_transform="SyN",
         **syn_comb_kwargs,
     )
