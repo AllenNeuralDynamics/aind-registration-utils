@@ -3,6 +3,7 @@ Module for ANTs (Advanced Normalization Tools) registration utilities.
 """
 
 from pathlib import Path
+
 import ants
 import numpy as np
 
@@ -62,6 +63,21 @@ def apply_ants_transforms_to_point_dict(pts_dict, transform_list, **kwargs):
 
 
 def _check_ants_prefix(prefix):
+    """
+    Checks and formats the given ANTs prefix.
+
+    Parameters
+    ----------
+    prefix : str
+        The prefix to check and format.
+
+    Returns
+    -------
+    str
+        The formatted prefix string. If the prefix is a directory, the
+        directory path is concatenated with its anchor. Otherwise, the prefix
+        is returned as a string.
+    """
     prefix_path = Path(prefix)
     if prefix_path.is_dir():
         prefix_str = str(prefix_path) + prefix_path.anchor
