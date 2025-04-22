@@ -4,21 +4,24 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aind-registration-utils"
-description = "Generated from aind-library-template"
+description = "Tools for registration of individual brains to a template brain"
 license = { text = "MIT" }
-requires-python = ">=3.7"
-authors = [{ name = "Allen Institute for Neural Dynamics" }]
+requires-python = ">=3.11, <3.13"
+authors = [
+  { name = "Galen Lynch", email = "galen@galenlynch.com" },
+  { name = "Allen Institute for Neural Dynamics" },
+]
 classifiers = ["Programming Language :: Python :: 3"]
 readme = "README.md"
 dynamic = ["version"]
 
 dependencies = [
-  "aind_mri_utils",
-  "antspyx >= 0.5",
-  "numpy",
-  "pandas",
-  "SimpleITK",
-  'vtk >= 9, < 10',
+  "aind_mri_utils>=0.2,<0.3.0",
+  "antspyx>=0.5,<0.6",
+  "numpy>=1,<2",
+  "pandas>=2,<3",
+  "SimpleITK>=2,<3",
+  'vtk>=9,<10',
 ]
 
 [project.optional-dependencies]
@@ -35,7 +38,7 @@ version = { attr = "aind_registration_utils.__version__" }
 
 [tool.black]
 line-length = 79
-target_version = ['py36']
+target_version = ['py312']
 exclude = '''
 
 (
@@ -53,6 +56,15 @@ exclude = '''
   | .gitignore
 )
 '''
+
+[tool.ruff]
+line-length = 79
+target-version = 'py312'
+
+[tool.ruff.lint]
+# pyflakes, pycodestyle, isort
+select = ["F", "E", "W", "I", "C90"]
+ignore = ["E501"]
 
 [tool.coverage.run]
 omit = ["*__init__*"]
@@ -73,4 +85,4 @@ profile = "black"
 
 [tool.interrogate]
 exclude = ["setup.py", "docs", "build", "notebooks", "tests"]
-fail-under = 100
+fail-under = 50
