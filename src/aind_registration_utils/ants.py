@@ -93,6 +93,8 @@ def ants_register_syn(
     affine_kwargs=dict(),
     syn_kwargs=dict(),
     syn_save_prefix="",
+    do_rigid=True,
+    do_affine=True,
 ):
     """
     Perform SyN registration using ANTs with a two-stage initialization (rigid
@@ -111,9 +113,22 @@ def ants_register_syn(
         Target image for the registration.
     moving_img : ants.ANTsImage
         Source image that will be aligned to the `fixed_img`.
+    rigid_kwargs : dict, optional
+        Keyword arguments for the rigid registration. Default is an empty
+        dictionary.
+    affine_kwargs : dict, optional
+        Keyword arguments for the affine registration. Default is an empty
+        dictionary.
+    syn_kwargs : dict, optional
+        Keyword arguments for the SyN registration. Default is an empty
+        dictionary.
     syn_save_prefix : str, optional
         Prefix for the output files of the SyN registration. If not specified,
         no prefix is added.
+    do_rigid : bool, optional
+        Flag to perform rigid registration. Default is True.
+    do_affine : bool, optional
+        Flag to perform affine registration. Default is True.
 
     Returns
     -------
@@ -138,25 +153,28 @@ def ants_register_syn(
     rigid_affine_kwargs_def = dict(aff_smoothing_sigmas=[3, 2, 1, 0])
     rigid_comb_kwargs = {**rigid_affine_kwargs_def, **rigid_kwargs}
     affine_comb_kwargs = {**rigid_affine_kwargs_def, **affine_kwargs}
-
-    tx_rigid = ants.registration(
-        fixed=fixed_img,
-        moving=moving_img,
-        type_of_transform="Rigid",
-        **rigid_comb_kwargs,
-    )
-    tx_affine = ants.registration(
-        fixed=fixed_img,
-        moving=moving_img,
-        initial_transform=tx_rigid["fwdtransforms"][0],
-        type_of_transform="Affine",
-        **affine_comb_kwargs,
-    )
-    print(f"syn kwargs is {syn_comb_kwargs}")
+    last_tx = None
+    if do_rigid:
+        tx_rigid = ants.registration(
+            fixed=fixed_img,
+            moving=moving_img,
+            type_of_transform="Rigid",
+            **rigid_comb_kwargs,
+        )
+        last_tx = tx_rigid["fwdtransforms"][0]
+    if do_affine:
+        tx_affine = ants.registration(
+            fixed=fixed_img,
+            moving=moving_img,
+            initial_transform=last_tx,
+            type_of_transform="Affine",
+            **affine_comb_kwargs,
+        )
+        last_tx = tx_affine["fwdtransforms"][0]
     tx_syn = ants.registration(
         fixed=fixed_img,
         moving=moving_img,
-        initial_transform=tx_affine["fwdtransforms"][0],
+        initial_transform=last_tx,
         outprefix=syn_save_prefix_str,
         type_of_transform="SyN",
         **syn_comb_kwargs,
