@@ -34,4 +34,3 @@ def check_output_path(output_path=None):
             f"Output path {output_path} is not a directory"
         )
     return Path(output_path)
-

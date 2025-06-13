@@ -1,15 +1,14 @@
-import os
-from pathlib import Path
 import numpy as np
 import ants
 from skimage.filters import threshold_li
 import scipy.ndimage as ni
 from skimage.measure import label
 
+
 def getLargestCC(segmentation):
     """
     Return the largest connected component from a binary segmentation.
-    
+
 
     Parameters
     ----------
@@ -28,7 +27,9 @@ def getLargestCC(segmentation):
         If `segmentation` contains no foreground (all zeros).
     """
     labels = label(segmentation)
-    assert labels.max() != 0, "segmentation must contain at least one connected component"
+    assert (
+        labels.max() != 0
+    ), "segmentation must contain at least one connected component"
     # bincount of flattened labels, skip background count at index 0
     largest_cc_index = np.argmax(np.bincount(labels.flat)[1:]) + 1
     return labels == largest_cc_index
@@ -53,14 +54,16 @@ def perc_normalization(ants_img):
     percentiles = [2, 98]
     percentile_values = np.percentile(img, percentiles)
 
-    img = (img - percentile_values[0]) / (percentile_values[1] - percentile_values[0])
+    img = (img - percentile_values[0]) / (
+        percentile_values[1] - percentile_values[0]
+    )
 
     # convert numpy array to ants image
     out = ants.from_numpy(
-        img.astype("float32"), 
+        img.astype("float32"),
         spacing=ants_img.spacing,
-        origin=ants_img.origin, 
-        direction=ants_img.direction
+        origin=ants_img.origin,
+        direction=ants_img.direction,
     )
     return out
 
@@ -145,7 +148,7 @@ def get_mask(ants_img):
         arr_mask.astype("float32"),
         spacing=ants_img.spacing,
         origin=ants_img.origin,
-        direction=ants_img.direction
+        direction=ants_img.direction,
     )
     return ants_img_mask
 
@@ -178,7 +181,7 @@ def fast_n4_preprocesses(
     output_filename=None,
     flip_lr=False,
     flip_ap=False,
-    spline_size = 15,
+    spline_size=15,
 ):
     if resample_spacing is None:
         resample_spacing = [0.1, 0.1, 0.1]
@@ -192,10 +195,8 @@ def fast_n4_preprocesses(
 
     Parameters
     ----------
-    input_filename : str or pathlib.Path
-        Path to the input Zarr file.
-    metadata : dict
-        Metadata dictionary for the Zarr dataset.
+    input: ants.core.ants_image.ANTsImage
+        Image to preprocess
     resample_spacing : list of float, optional
         Spacing to use for downsampling (in mm). Defaults to [0.1, 0.1, 0.1].
     level : int, optional
@@ -206,7 +207,8 @@ def fast_n4_preprocesses(
         Whether to apply a left-right flip before processing. Defaults to False.
     flip_ap : bool, optional
         Whether to apply an anterior-posterior flip before processing. Defaults to False.
-
+    spline_size: float, optional
+        Spline size for smoothing, default is 15 mm
     Returns
     -------
     ants.core.ants_image.ANTsImage
@@ -217,7 +219,6 @@ def fast_n4_preprocesses(
     FileNotFoundError
         If the input Zarr file does not exist or cannot be read.
     """
-
 
     # Optional flips
     if flip_lr:
@@ -233,7 +234,7 @@ def fast_n4_preprocesses(
 
     # Compute N4 bias field
     n4_field_down = ants.n4_bias_field_correction(
-        image_down, mask=mask, spline_param=spine_size, return_bias_field=True
+        image_down, mask=mask, spline_param=spline_size, return_bias_field=True
     )
 
     # Upsample bias field
