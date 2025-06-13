@@ -1,7 +1,7 @@
-import numpy as np
 import ants
-from skimage.filters import threshold_li
+import numpy as np
 import scipy.ndimage as ni
+from skimage.filters import threshold_li
 from skimage.measure import label
 
 
@@ -27,9 +27,9 @@ def getLargestCC(segmentation):
         If `segmentation` contains no foreground (all zeros).
     """
     labels = label(segmentation)
-    assert (
-        labels.max() != 0
-    ), "segmentation must contain at least one connected component"
+    assert labels.max() != 0, (
+        "segmentation must contain at least one connected component"
+    )
     # bincount of flattened labels, skip background count at index 0
     largest_cc_index = np.argmax(np.bincount(labels.flat)[1:]) + 1
     return labels == largest_cc_index
@@ -37,7 +37,8 @@ def getLargestCC(segmentation):
 
 def perc_normalization(ants_img):
     """
-    Apply percentile normalization to an ANTs image using the 2nd and 98th percentiles.
+    Apply percentile normalization to an ANTs image using the 2nd and 98th
+    percentiles.
 
     Parameters
     ----------
@@ -47,7 +48,8 @@ def perc_normalization(ants_img):
     Returns
     -------
     ants.core.ants_image.ANTsImage
-        The percentile-normalized image with the same metadata (spacing, origin, direction).
+        The percentile-normalized image with the same metadata (spacing,
+        origin, direction).
     """
     img = ants_img.numpy()
 
@@ -88,7 +90,8 @@ def get_threshold_li(arr_img: np.ndarray):
 
 def cleanup_mask(arr_mask: np.ndarray):
     """
-    Clean up a binary mask by filling holes, dilating, closing, and keeping the largest component.
+    Clean up a binary mask by filling holes, dilating, closing, and keeping the
+    largest component.
 
     The following morphological operations are applied in sequence:
       1. Fill holes in the mask
@@ -119,7 +122,8 @@ def cleanup_mask(arr_mask: np.ndarray):
 
 def get_mask(ants_img):
     """
-    Generate a cleaned binary mask for an ANTs image using Li thresholding and morphological cleanup.
+    Generate a cleaned binary mask for an ANTs image using Li thresholding and
+    morphological cleanup.
 
     Parameters
     ----------
@@ -129,7 +133,8 @@ def get_mask(ants_img):
     Returns
     -------
     ants.core.ants_image.ANTsImage
-        The binary mask as an ANTs image, with the same spacing, origin, and direction.
+        The binary mask as an ANTs image, with the same spacing, origin, and
+        direction.
     """
     # convert ants image to numpy array
     arr_img = ants_img.numpy()
@@ -202,11 +207,14 @@ def fast_n4_preprocesses(
     level : int, optional
         Mipmap level to load from the Zarr dataset. Defaults to 2.
     output_filename : str or pathlib.Path, optional
-        File path to write the preprocessed image. If None, no file is written. Defaults to None.
+        File path to write the preprocessed image. If None, no file is written.
+        Defaults to None.
     flip_lr : bool, optional
-        Whether to apply a left-right flip before processing. Defaults to False.
+        Whether to apply a left-right flip before processing. Defaults to
+        False.
     flip_ap : bool, optional
-        Whether to apply an anterior-posterior flip before processing. Defaults to False.
+        Whether to apply an anterior-posterior flip before processing. Defaults
+        to False.
     spline_size: float, optional
         Spline size for smoothing, default is 15 mm
     Returns
