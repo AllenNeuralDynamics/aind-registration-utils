@@ -173,10 +173,8 @@ def reflect_ants_image(image, axis=0):
 
 
 def fast_n4_preprocesses(
-    input_filename,
-    metadata,
+    image,
     resample_spacing=[0.1, 0.1, 0.1],
-    intended_direction='LPS',
     level=2,
     output_filename=None,
     flip_lr=False,
@@ -199,8 +197,6 @@ def fast_n4_preprocesses(
         Metadata dictionary for the Zarr dataset.
     resample_spacing : list of float, optional
         Spacing to use for downsampling (in mm). Defaults to [0.1, 0.1, 0.1].
-    intended_direction : str, optional
-        Desired anatomical orientation (e.g. 'LPS'). Defaults to 'LPS'.
     level : int, optional
         Mipmap level to load from the Zarr dataset. Defaults to 2.
     output_filename : str or pathlib.Path, optional
@@ -220,8 +216,7 @@ def fast_n4_preprocesses(
     FileNotFoundError
         If the input Zarr file does not exist or cannot be read.
     """
-    # Load the image
-    image = zarr_to_ants(input_filename, metadata, level=level)
+
 
     # Optional flips
     if flip_lr:
