@@ -5,7 +5,6 @@ import ants
 from skimage.filters import threshold_li
 import scipy.ndimage as ni
 from skimage.measure import label
-from aind_zarr_utils.zarr import zarr_to_ants
 
 def getLargestCC(segmentation):
     """
