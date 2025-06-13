@@ -162,6 +162,7 @@ def ants_register_syn(
             **rigid_comb_kwargs,
         )
         last_tx = tx_rigid["fwdtransforms"][0]
+        del tx_rigid
     if do_affine:
         tx_affine = ants.registration(
             fixed=fixed_img,
@@ -171,12 +172,13 @@ def ants_register_syn(
             **affine_comb_kwargs,
         )
         last_tx = tx_affine["fwdtransforms"][0]
+        del tx_affine
     tx_syn = ants.registration(
         fixed=fixed_img,
         moving=moving_img,
         initial_transform=last_tx,
         outprefix=syn_save_prefix_str,
-        type_of_transform="SyN",
+        type_of_transform="SyNOnly",
         **syn_comb_kwargs,
     )
     return tx_syn
