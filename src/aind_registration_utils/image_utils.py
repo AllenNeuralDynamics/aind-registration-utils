@@ -5,7 +5,7 @@ from skimage.filters import threshold_li
 from skimage.measure import label
 
 
-def getLargestCC(segmentation):
+def get_largest_cc(segmentation):
     """
     Return the largest connected component from a binary segmentation.
 
@@ -27,15 +27,18 @@ def getLargestCC(segmentation):
         If `segmentation` contains no foreground (all zeros).
     """
     labels = label(segmentation)
-    assert labels.max() != 0, (
-        "segmentation must contain at least one connected component"
-    )
+    if labels.max() == 0:
+        raise ValueError(
+            "segmentation must contain at least one connected component"
+        )
     # bincount of flattened labels, skip background count at index 0
     largest_cc_index = np.argmax(np.bincount(labels.flat)[1:]) + 1
     return labels == largest_cc_index
 
 
-def perc_normalization(ants_img):
+def perc_normalization(ants_img, percentiles=None):
+    if percentiles is None:
+        percentiles = [2, 98]
     """
     Apply percentile normalization to an ANTs image using the 2nd and 98th
     percentiles.
@@ -44,6 +47,8 @@ def perc_normalization(ants_img):
     ----------
     ants_img : ants.core.ants_image.ANTsImage
         The input image to normalize.
+    percentiles : list or array (2,)
+        Min and max percentile to use for normalization.
 
     Returns
     -------
@@ -53,7 +58,6 @@ def perc_normalization(ants_img):
     """
     img = ants_img.numpy()
 
-    percentiles = [2, 98]
     percentile_values = np.percentile(img, percentiles)
 
     img = (img - percentile_values[0]) / (
@@ -115,7 +119,7 @@ def cleanup_mask(arr_mask: np.ndarray):
     mask = ni.binary_fill_holes(arr_mask).astype(int)
     mask = ni.binary_dilation(mask, structure=struct).astype(int)
     mask = ni.binary_closing(mask).astype(int)
-    mask = getLargestCC(mask)
+    mask = get_largest_cc(mask)
 
     return mask
 
