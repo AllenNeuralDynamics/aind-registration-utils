@@ -178,7 +178,7 @@ def fast_n4_preprocesses(
     output_filename=None,
     flip_lr=False,
     flip_ap=False,
-    spine_size = 15,
+    spline_size = 15,
 ):
     if resample_spacing is None:
         resample_spacing = [0.1, 0.1, 0.1]
