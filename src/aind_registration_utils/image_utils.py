@@ -173,13 +173,15 @@ def reflect_ants_image(image, axis=0):
 
 def fast_n4_preprocesses(
     image,
-    resample_spacing=[0.1, 0.1, 0.1],
+    resample_spacing=None,
     level=2,
     output_filename=None,
     flip_lr=False,
     flip_ap=False,
     spine_size = 15,
 ):
+    if resample_spacing is None:
+        resample_spacing = [0.1, 0.1, 0.1]
     """
     Quickly preprocess a Zarr-based image for template building:
       - Load and optionally flip left-right or anterior-posterior
