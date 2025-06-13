@@ -27,9 +27,8 @@ def get_largest_cc(segmentation):
         If `segmentation` contains no foreground (all zeros).
     """
     labels = label(segmentation)
-    assert (
-        labels.max() != 0
-    ), "segmentation must contain at least one connected component"
+    if labels.max() == 0:
+        raise ValueError("segmentation must contain at least one connected component")
     # bincount of flattened labels, skip background count at index 0
     largest_cc_index = np.argmax(np.bincount(labels.flat)[1:]) + 1
     return labels == largest_cc_index
