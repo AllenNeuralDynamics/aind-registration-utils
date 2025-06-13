@@ -22,7 +22,7 @@ dependencies = [
   "pandas>=2,<3",
   "SimpleITK>=2,<3",
   'vtk>=9,<10',
-  'skimage>=0.24,<1',
+  'scikit-image>=0.24,<1',
   'scipy>=1.13,<2',
 ]
 
