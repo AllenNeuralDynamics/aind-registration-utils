@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "aind-registration-utils"
 description = "Tools for registration of individual brains to a template brain"
 license = { text = "MIT" }
-requires-python = ">=3.11, <3.13"
+requires-python = ">=3.10, <3.14"
 authors = [
   { name = "Galen Lynch", email = "galen@galenlynch.com" },
   { name = "Allen Institute for Neural Dynamics" },
