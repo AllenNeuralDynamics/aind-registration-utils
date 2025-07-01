@@ -2,7 +2,7 @@
 from pathlib import Path
 
 import ants
-from aind_mri_utils.file_io.slicer_files import markup_json_to_dict
+from aind_anatomical_utils.slicer import markup_json_to_dict
 
 from aind_registration_utils.recipes import (
     individual_to_template_with_points_files,

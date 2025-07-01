@@ -3,7 +3,7 @@ Contains common registration recipes
 """
 
 import ants
-from aind_mri_utils.file_io.slicer_files import (
+from aind_anatomical_utils.slicer import (
     create_slicer_fcsv,
     markup_json_to_dict,
 )
