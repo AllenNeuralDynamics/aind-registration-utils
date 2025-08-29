@@ -33,7 +33,6 @@ jobs:
       os: ${{ matrix.os }}
       python-version: ${{ matrix.python-version }}
       package-name: aind_registration_utils
-      run-mypy: true
       smoke-test-paths: "tests"
     secrets:
       repo-token: ${{ secrets.GITHUB_TOKEN }}
