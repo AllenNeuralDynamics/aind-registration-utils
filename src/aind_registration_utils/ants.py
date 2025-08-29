@@ -2,7 +2,10 @@
 Module for ANTs (Advanced Normalization Tools) registration utilities.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Any, List, Optional, Sequence, Tuple
 
 import ants
 import numpy as np
@@ -319,3 +322,289 @@ def combine_syn_and_second_transform(
     )
 
     return fwd_tx_cmb, rev_tx_cmb
+
+
+def _surface_samples(size: Sequence[int], n: int = 2) -> List[Tuple[float, ...]]:  # noqa: C901
+    """
+    Generate sample index coordinates on an image's surface.
+
+    This returns integer-like (but stored as float) index coordinates on the
+    outer surface of a 2D or 3D array. With `n=2`, this yields only the corners.
+    With `n>2`, it yields a sparse grid on each face (x-min/x-max, y-min/y-max,
+    and for 3D, z-min/z-max).
+
+    Parameters
+    ----------
+    size : Sequence[int]
+        The array/image shape as a sequence of length 2 or 3 (e.g., `(nx, ny, nz)`).
+    n : int, optional
+        Number of sample points per edge (>= 2). `n=2` produces corners only.
+        Larger values sample faces more densely. Default is 2.
+
+    Returns
+    -------
+    list of tuple of float
+        A list of index coordinates on the surface; each tuple has length equal
+        to the array dimension (2 or 3). Values are floats to support later
+        conversion to physical points without implicit rounding.
+
+    Notes
+    -----
+    - Indices are **0-origin** and refer to voxel centers in index space.
+    - This function does *not* include interior points; only the hull.
+
+    Examples
+    --------
+    >>> _surface_samples((10, 8), n=2)  # 2D corners
+    [(0.0, 0.0), (0.0, 7.0), (9.0, 0.0), (9.0, 7.0)]
+    >>> len(_surface_samples((10, 8, 6), n=3))  # 3D sparse face grid
+    6 * 3 * 3 - 12  # number of unique samples on 6 faces (no duplicates)
+    """
+    size = list(size)
+    dims = len(size)
+    if dims not in (2, 3):
+        raise ValueError(f"`size` must have length 2 or 3, got {dims}")
+    if n < 2:
+        raise ValueError("`n` must be >= 2")
+
+    ax = [np.linspace(0, s - 1, n) for s in size]
+    pts: List[Tuple[float, ...]] = []
+
+    if dims == 2:
+        xs, ys = ax
+        # left/right edges
+        for i in (0, n - 1):
+            for j in range(n):
+                pts.append((float(xs[i]), float(ys[j])))
+        # top/bottom edges (avoid duplicates at corners)
+        for j in (0, n - 1):
+            for i in range(1, n - 1):
+                pts.append((float(xs[i]), float(ys[j])))
+    else:
+        xs, ys, zs = ax
+        # x-min/x-max faces
+        for i in (0, n - 1):
+            for j in range(n):
+                for k in range(n):
+                    pts.append((float(xs[i]), float(ys[j]), float(zs[k])))
+        # y-min/y-max faces (skip edges already included along x faces)
+        for j in (0, n - 1):
+            for i in range(1, n - 1):
+                for k in range(n):
+                    pts.append((float(xs[i]), float(ys[j]), float(zs[k])))
+        # z-min/z-max faces (skip edges already included)
+        for k in (0, n - 1):
+            for i in range(1, n - 1):
+                for j in range(1, n - 1):
+                    pts.append((float(xs[i]), float(ys[j]), float(zs[k])))
+
+    return pts
+
+
+def _to_continuous_index(
+    phys_pts: Sequence[Sequence[float]],
+    origin: Sequence[float],
+    spacing: Sequence[float],
+    direction: Sequence[float],
+) -> np.ndarray:
+    """
+    Convert physical coordinates to continuous index coordinates.
+
+    Uses the standard ANTs/SimpleITK geometry:
+    ``p = o + D @ (s * i)``  =>  ``i = (D.T @ (p - o)) / s``.
+
+    Parameters
+    ----------
+    phys_pts : Sequence[Sequence[float]]
+        Iterable of physical coordinates with shape (N, dim).
+    origin : Sequence[float]
+        Origin vector ``o`` (length `dim`) in physical units.
+    spacing : Sequence[float]
+        Per-axis spacing vector ``s`` (length `dim`) in physical units.
+    direction : Sequence[float]
+        Flattened row-major direction matrix ``D`` of length `dim*dim`.
+
+    Returns
+    -------
+    numpy.ndarray
+        Continuous index coordinates with shape (N, dim), where each row
+        represents the floating-point index coordinate corresponding to the
+        input physical point on the target grid.
+
+    Notes
+    -----
+    - This does *not* round indices; downstream callers can floor/ceil as needed
+      to build bounding boxes on a voxel lattice.
+    - `direction` is flattened row-major to match ANTs/SimpleITK conventions.
+
+    Examples
+    --------
+    >>> pts = [(1.0, 2.0, 3.0)]
+    >>> o = (0.0, 0.0, 0.0)
+    >>> s = (1.0, 2.0, 3.0)
+    >>> D = np.eye(3).reshape(-1).tolist()
+    >>> _to_continuous_index(pts, o, s, D)
+    array([[1. , 1. , 1. ]])
+    """
+    o = np.asarray(origin, dtype=float)
+    s = np.asarray(spacing, dtype=float)
+    dim = s.size
+    D = np.asarray(direction, dtype=float).reshape((dim, dim))
+    phys = np.asarray(phys_pts, dtype=float)
+    if phys.ndim != 2 or phys.shape[1] != dim:
+        raise ValueError(f"`phys_pts` must have shape (N, {dim})")
+    return ((phys - o) @ D.T) / s
+
+
+def apply_transforms_auto_bbox(
+    moving: ants.ANTsImage,
+    transformlist: Sequence[Any],
+    whichtoinvert: Optional[Sequence[bool]] = None,
+    fixed: Optional[ants.ANTsImage] = None,
+    spacing: Optional[Sequence[float]] = None,
+    direction: Optional[Sequence[float]] = None,
+    origin: Optional[Sequence[float]] = None,
+    samples_per_edge: int = 2,
+    pad_voxels: int = 1,
+    interpolator: str = "linear",
+    default_value: float | int = 0,
+) -> Tuple[ants.ANTsImage, ants.ANTsImage]:
+    """
+    Warp `moving` into fixed space using a reference grid that *auto-fits*
+    the warped extent of `moving`.
+
+    This utility builds a minimal ANTs reference image (spacing/direction/origin
+    from `fixed` if provided, otherwise from arguments/defaults) that tightly
+    bounds the warped moving image. It then calls `ants.apply_transforms`
+    with that reference.
+
+    Parameters
+    ----------
+    moving : ants.ANTsImage
+        The moving image to be warped.
+    transformlist : Sequence[Any]
+        Forward transforms that map **moving → fixed** space. Typically the
+        `fwdtransforms` from ANTsPy registration. These can be filenames
+        (e.g., .mat, .h5) or in-memory transform specs accepted by ANTsPy.
+    fixed : ants.ANTsImage, optional
+        If provided, the output grid will align with this image's `spacing`,
+        `direction`, and `origin` (but with size chosen to bound the warp).
+        If omitted, you must supply (or accept defaults for) `spacing`,
+        `direction`, and `origin`.
+    spacing : Sequence[float], optional
+        Output voxel spacing (length = image dimension). Defaults to
+        `moving.spacing` when `fixed is None`.
+    direction : Sequence[float], optional
+        Flattened row-major direction matrix of length `dim*dim`. Defaults to
+        identity when `fixed is None`.
+    origin : Sequence[float], optional
+        Output origin in physical units. If `fixed is None` and `origin` is
+        omitted, defaults to all zeros. If `fixed` is provided, its origin
+        is used.
+    samples_per_edge : int, optional
+        Number of samples per edge on the moving image surface when estimating
+        the warped bounding box. `2` uses corners only; larger values add a sparse
+        face grid to better capture nonlinear warps. Default is 2.
+    pad_voxels : int, optional
+        Safety padding (in voxels) added uniformly to the min/max index bounds.
+        Default is 1.
+    interpolator : str, optional
+        Interpolator for `ants.apply_transforms` (e.g., "nearestNeighbor", "linear",
+        "bspline"). Default is "linear".
+    default_value : float or int, optional
+        Fill value for voxels outside the pulled-back `moving` domain.
+        Default is 0.
+
+    Returns
+    -------
+    warped : ants.ANTsImage
+        The warped moving image sampled on the auto-computed reference grid.
+    ref : ants.ANTsImage
+        The auto-constructed reference image whose extent tightly bounds the
+        warped moving image.
+
+    Notes
+    -----
+    - The function samples points on the **moving** image surface in index space,
+      maps them to physical space, applies the provided forward transforms
+      (moving→fixed) via `ants.apply_transforms_to_points`, converts those
+      physical coordinates to continuous index space of the target grid, and
+      constructs a minimal bounding box (with optional padding).
+    - If `fixed` is provided, the resulting grid is guaranteed to lie on the
+      **fixed voxel lattice** (origin is snapped using integer index offsets).
+    - For highly nonlinear transforms, increase `samples_per_edge` (e.g., 5–9).
+
+    See Also
+    --------
+    ants.apply_transforms : Resample an image through a transform chain.
+    ants.apply_transforms_to_points : Apply transforms to point sets.
+
+    Examples
+    --------
+    >>> # Suppose you have ANTs images `fixed`, `moving`, and transforms `xfms`
+    >>> warped, ref = apply_transforms_auto_bbox(
+    ...     moving=moving,
+    ...     transformlist=xfms,     # moving→fixed transforms
+    ...     fixed=fixed,            # or omit and specify spacing/direction/origin
+    ...     samples_per_edge=5,
+    ...     pad_voxels=2,
+    ... )
+    """
+    dim = moving.dimension
+
+    if fixed is not None:
+        spacing = fixed.spacing
+        direction = fixed.direction
+        origin = fixed.origin
+    else:
+        if spacing is None:
+            spacing = moving.spacing
+        if direction is None:
+            direction = tuple(np.eye(dim, dtype=float).reshape(-1).tolist())
+        if origin is None:
+            origin = tuple(float(0) for _ in range(dim))
+
+    # 1) sample surface points in moving index space and convert to physical
+    idx_samples = _surface_samples(moving.shape, n=samples_per_edge)
+    phys_m = [
+        ants.transform_index_to_physical_point(moving, idx) for idx in idx_samples
+    ]
+
+    # 2) map to fixed physical space
+    cols = list("xyz")[:dim]
+    df = pd.DataFrame(phys_m, columns=cols)
+    warped_df = ants.apply_transforms_to_points(
+        dim, df, transformlist, whichtoinvert=whichtoinvert
+    )
+    phys_f = warped_df[cols].to_numpy()
+
+    # 3) compute bounding box in index space of the target grid
+    ci = _to_continuous_index(phys_f, origin, spacing, direction)
+    idx_min = np.floor(ci.min(axis=0)).astype(int) - int(pad_voxels)
+    idx_max = np.ceil(ci.max(axis=0)).astype(int) + int(pad_voxels)
+    size = (idx_max - idx_min + 1).astype(int)
+
+    # snap origin so that idx_min corresponds to the first voxel
+    D = np.asarray(direction, dtype=float).reshape((dim, dim))
+    s = np.asarray(spacing, dtype=float)
+    o = np.asarray(origin, dtype=float)
+    origin_out = o + D @ (s * idx_min)
+
+    # 4) build reference image and 5) resample
+    ref = ants.make_image(
+        imagesize=tuple(map(int, size)),
+        voxval=0,
+        spacing=tuple(spacing),
+        origin=tuple(origin_out.tolist()),
+        direction=tuple(direction),
+        pixeltype=moving.pixeltype,  # optional: match moving’s pixel type
+    )
+    warped = ants.apply_transforms(
+        fixed=ref,
+        moving=moving,
+        transformlist=list(transformlist),
+        whichtoinvert=whichtoinvert,
+        interpolator=interpolator,
+        defaultvalue=default_value,
+    )
+    return warped, ref
