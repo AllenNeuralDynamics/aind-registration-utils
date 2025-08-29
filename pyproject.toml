@@ -36,7 +36,7 @@ Changelog = "https://github.com/AllenNeuralDynamics/aind-registration-utils/blob
 register_individual_to_template = "aind_registration_utils.scripts.register_individual_to_template:main"
 
 [dependency-groups]
-dev = ["codespell", "pytest", "pytest-cov", "ruff", "interrogate"]
+dev = ["codespell", "pytest", "pytest-cov", "ruff", "interrogate", "mypy"]
 vscode = [{ include-group = "dev" }, "ipykernel", "pip", "ipympl"]
 docs = [
   { include-group = "dev" },
