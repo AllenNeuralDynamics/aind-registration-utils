@@ -41,14 +41,10 @@ def parse_args():
             "template image and apply it to a set of points."
         )
     )
-    parser.add_argument(
-        "individual", help="path to the image of an individual"
-    )
+    parser.add_argument("individual", help="path to the image of an individual")
     parser.add_argument("mask", help="path to the brain mask of an individual")
     parser.add_argument("template", help="path to the image of the template")
-    parser.add_argument(
-        "targets", help="path to the targets in the template space"
-    )
+    parser.add_argument("targets", help="path to the targets in the template space")
     parser.add_argument("output", nargs="?", help="output directory")
     parser.add_argument("-m", "--mouse", default=None, help="mouse ID")
     parser.add_argument(

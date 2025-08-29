@@ -28,9 +28,7 @@ def get_largest_cc(segmentation):
     """
     labels = label(segmentation)
     if labels.max() == 0:
-        raise ValueError(
-            "segmentation must contain at least one connected component"
-        )
+        raise ValueError("segmentation must contain at least one connected component")
     # bincount of flattened labels, skip background count at index 0
     largest_cc_index = np.argmax(np.bincount(labels.flat)[1:]) + 1
     return labels == largest_cc_index
@@ -60,9 +58,7 @@ def perc_normalization(ants_img, percentiles=None):
 
     percentile_values = np.percentile(img, percentiles)
 
-    img = (img - percentile_values[0]) / (
-        percentile_values[1] - percentile_values[0]
-    )
+    img = (img - percentile_values[0]) / (percentile_values[1] - percentile_values[0])
 
     # convert numpy array to ants image
     out = ants.from_numpy(

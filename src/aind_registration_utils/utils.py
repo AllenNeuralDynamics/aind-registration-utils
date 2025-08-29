@@ -30,7 +30,5 @@ def check_output_path(output_path=None):
     if output_path is None:
         output_path = os.getcwd()
     if not os.path.isdir(output_path):
-        raise NotADirectoryError(
-            f"Output path {output_path} is not a directory"
-        )
+        raise NotADirectoryError(f"Output path {output_path} is not a directory")
     return Path(output_path)
