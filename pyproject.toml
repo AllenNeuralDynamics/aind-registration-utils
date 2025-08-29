@@ -6,14 +6,14 @@ build-backend = "setuptools.build_meta"
 name = "aind-registration-utils"
 description = "Tools for registration of individual brains to a template brain"
 license = { text = "MIT" }
-requires-python = ">=3.10, <3.14"
+requires-python = ">=3.10"
 authors = [
   { name = "Galen Lynch", email = "galen@galenlynch.com" },
   { name = "Allen Institute for Neural Dynamics" },
 ]
 classifiers = ["Programming Language :: Python :: 3"]
 readme = "README.md"
-dynamic = ["version"]
+version = "0.1.9"
 
 dependencies = [
   "aind-anatomical-utils>=0.1,<0.2",
@@ -26,11 +26,26 @@ dependencies = [
   'scipy>=1,<2',
 ]
 
-[project.optional-dependencies]
-dev = ['black', 'coverage', 'flake8', 'interrogate', 'isort', 'Sphinx', 'furo']
+[project.urls]
+Repository = "https://github.com/AllenNeuralDynamics/aind-registration-utils/"
+Issues = "https://github.com/AllenNeuralDynamics/aind-registration-utils/issues"
+Changelog = "https://github.com/AllenNeuralDynamics/aind-registration-utils/blob/main/CHANGELOG.md"
+
 
 [project.scripts]
 register_individual_to_template = "aind_registration_utils.scripts.register_individual_to_template:main"
+
+[dependency-groups]
+dev = ["codespell", "pytest", "pytest-cov", "ruff", "interrogate"]
+vscode = [{ include-group = "dev" }, "ipykernel", "pip", "ipympl"]
+docs = [
+  { include-group = "dev" },
+  "mkdocs",
+  "mkdocs-material",
+  "mkdocstrings[python]",
+  "pymdown-extensions",
+  "ruff",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -38,53 +53,49 @@ where = ["src"]
 [tool.setuptools.dynamic]
 version = { attr = "aind_registration_utils.__version__" }
 
-[tool.black]
-line-length = 79
-target_version = ['py313']
-exclude = '''
-
-(
-  /(
-      \.eggs         # exclude a few common directories in the
-    | \.git          # root of the project
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | build
-    | dist
-  )/
-  | .gitignore
-)
-'''
-
 [tool.ruff]
-line-length = 79
+line-length = 88
 target-version = 'py313'
 
+
 [tool.ruff.lint]
-# pyflakes, pycodestyle, isort
-select = ["F", "E", "W", "I", "C90"]
-ignore = ["E501"]
+extend-select = ["Q", "RUF100", "C90", "I", "F", "E", "W"]
+extend-ignore = []
+mccabe = { max-complexity = 14 }
+pydocstyle = { convention = "numpy" }
 
-[tool.coverage.run]
-omit = ["*__init__*"]
-source = ["aind_registration_utils", "tests"]
+[tool.codespell]
+skip = ".git,*.pdf,*.svg,./bonsai,*.bonsai,./docs/_build,uv.lock"
+ignore-words-list = "nd"
 
-[tool.coverage.report]
-exclude_lines = [
-  "if __name__ == .__main__.:",
-  "from",
-  "import",
-  "pragma: no cover",
-]
-fail_under = 0
-
-[tool.isort]
-line_length = 79
-profile = "black"
+[tool.pytest.ini_options]
+addopts = "--strict-markers --tb=short --cov=src --cov-report=term-missing --cov-fail-under=0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 
 [tool.interrogate]
-exclude = ["setup.py", "docs", "build", "notebooks", "tests"]
-fail-under = 50
+ignore-init-method = true
+ignore-magic = true
+ignore_module = true
+fail-under = 30
+exclude = [
+  "__init__.py",
+  "tests",
+  "docs",
+  "build",
+  "setup.py",
+  "examples",
+  "site",
+]
+
+[tool.commitizen]
+version_provider = "pep621"
+version_files = [
+  "pyproject.toml",
+  "src/aind_registration_utils/__init__.py:__version__",
+]
+update_changelog_on_bump = true
+tag_format = "v$version"
+major_version_zero = true

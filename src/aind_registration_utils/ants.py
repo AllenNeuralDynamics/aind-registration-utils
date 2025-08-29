@@ -53,12 +53,8 @@ def apply_ants_transforms_to_point_dict(pts_dict, transform_list, **kwargs):
             "z": pt_arr[:, 2],
         }
     )
-    tx_pt_df = ants.apply_transforms_to_points(
-        3, pt_df, transform_list, **kwargs
-    )
-    tx_pts_dict = {
-        k: tx_pt_df.iloc[i, :].values for i, k in enumerate(pts_dict.keys())
-    }
+    tx_pt_df = ants.apply_transforms_to_points(3, pt_df, transform_list, **kwargs)
+    tx_pts_dict = {k: tx_pt_df.iloc[i, :].values for i, k in enumerate(pts_dict.keys())}
     return tx_pts_dict
 
 

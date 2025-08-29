@@ -10,15 +10,9 @@ from aind_registration_utils.recipes import (
 
 # %%
 template_dir = Path("/mnt/Data/MRI/templates")
-processed_dir = Path(
-    "/mnt/aind1-vast/scratch/ephys/persist/data/MRI/processed"
-)
-template_path = (
-    template_dir / "template_15brain_n4_and_padding_cc_symetric.nii.gz"
-)
-template_targets = (
-    template_dir / "fiducials_15brain_uw_template_2024_09_10.mrk.json"
-)
+processed_dir = Path("/mnt/aind1-vast/scratch/ephys/persist/data/MRI/processed")
+template_path = template_dir / "template_15brain_n4_and_padding_cc_symetric.nii.gz"
+template_targets = template_dir / "fiducials_15brain_uw_template_2024_09_10.mrk.json"
 # Mouse ID etc
 mouse_id = "760332"
 individual_dir = processed_dir / f"{mouse_id}"

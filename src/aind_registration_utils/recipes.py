@@ -119,14 +119,12 @@ def individual_to_template_with_points_files(
 
     template_img = ants.image_read(str(template_path))
     template_target_pts, _ = markup_json_to_dict(str(template_targets))
-    individual_template_tx_syn, pts_in_individual = (
-        individual_to_template_with_points(
-            mouse_img_masked,
-            template_img,
-            pts_in_template=template_target_pts,
-            output_prefix=save_dir,
-            syn_kwargs=syn_kwargs,
-        )
+    individual_template_tx_syn, pts_in_individual = individual_to_template_with_points(
+        mouse_img_masked,
+        template_img,
+        pts_in_template=template_target_pts,
+        output_prefix=save_dir,
+        syn_kwargs=syn_kwargs,
     )
     create_slicer_fcsv(save_dir / pt_save_name, pts_in_individual)
     ants.image_write(
