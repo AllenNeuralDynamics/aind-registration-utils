@@ -324,9 +324,7 @@ def combine_syn_and_second_transform(
     return fwd_tx_cmb, rev_tx_cmb
 
 
-def _surface_samples(
-    size: Sequence[int], n: int = 2
-) -> List[Tuple[float, ...]]:
+def _surface_samples(size: Sequence[int], n: int = 2) -> List[Tuple[float, ...]]:  # noqa: C901
     """
     Generate sample index coordinates on an image's surface.
 
@@ -569,8 +567,7 @@ def apply_transforms_auto_bbox(
     # 1) sample surface points in moving index space and convert to physical
     idx_samples = _surface_samples(moving.shape, n=samples_per_edge)
     phys_m = [
-        ants.transform_index_to_physical_point(moving, idx)
-        for idx in idx_samples
+        ants.transform_index_to_physical_point(moving, idx) for idx in idx_samples
     ]
 
     # 2) map to fixed physical space

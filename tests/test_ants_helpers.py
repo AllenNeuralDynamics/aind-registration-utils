@@ -142,9 +142,7 @@ class TestToContinuousIndex(unittest.TestCase):
         direction = list(np.eye(3).reshape(-1))
 
         result = _to_continuous_index(pts, origin, spacing, direction)
-        expected = np.array(
-            [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0]]
-        )
+        expected = np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0]])
         np.testing.assert_allclose(result, expected)
 
     def test_to_continuous_index_2d(self):
