@@ -49,8 +49,11 @@ def map_annotations_safely(moving_annotations,
     int_image = ants.copy_image_info(moving_annotations,
                                      int_image)
     # Check that conversion to ants didn't introduce errors.
-    assert np.all(int_image.view().astype(index_mapping.dtype) == index_mapping),\
-        'There appears to have been a rounding error during type conversion. Please check!'
+# Ensure dtype consistency and compare
+int_image_cast = int_image.view().astype(index_mapping.dtype)
+assert np.array_equal(int_image_cast, index_mapping), (
+    "There appears to have been a rounding error during type conversion. Please check!"
+)
 
 
     # Apply the warp
