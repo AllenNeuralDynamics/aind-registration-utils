@@ -54,8 +54,8 @@ def map_annotations_safely(moving_annotations,
 
 
     # Apply the warp
-    warped_int_annotations = ants.apply_transforms(fixed,int_image,
-                                                   transformlist=transformlist)
+    warped_int_annotations = ants.apply_transforms(
+        fixed, int_image, transformlist=transformlist, interpolator=interpolator, **kwargs)
 
     # Map indices back to original
     warped_numpy_annotations = origional_index[warped_int_annotations.view().astype(int)]
