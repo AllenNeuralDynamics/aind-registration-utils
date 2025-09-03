@@ -43,8 +43,7 @@ def map_annotations_safely(
     original_index, index_mapping = np.unique(
         moving_annotations.view(), return_inverse=True
     )
-    int_image = ants.from_numpy(index_mapping.astype("float"))
-    int_image = int_image.astype("uint32")
+    int_image = ants.from_numpy(index_mapping.astype("uint32"))
     int_image = ants.copy_image_info(moving_annotations, int_image)
     # Check that conversion to ants didn't introduce errors.
     # Ensure dtype consistency and compare
