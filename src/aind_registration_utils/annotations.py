@@ -31,7 +31,7 @@ def map_annotations_safely(moving_annotations,
         in the same format expected by `ants.apply_transforms`.
     interpolator : str, optional
         Interpolation method for resampling. Defaults to 'nearestNeighbor',
-        which is appropriate for label images/altas annotations.
+        which is appropriate for label images/atlas annotations.
     **kwargs : dict, optional
         Additional keyword arguments passed to `ants.apply_transforms`.
 
