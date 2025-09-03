@@ -158,4 +158,50 @@ def test_inputs_not_mutated(annotations_module) -> None:
 
     _ = map_annotations_safely(moving, fixed, transformlist=[])
 
-    # En
+    # Ensure original arrays and metadata unchanged
+    np.testing.assert_array_equal(moving.view(), moving_before)
+    assert fixed.spacing == fixed_before_spacing
+
+
+def test_uses_nearest_neighbor_interpolator(
+    annotations_module,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    Ensure nearest-neighbor is used when warping the temporary integer image.
+    Our fake apply_transforms asserts this; here we also verify call was made.
+    """
+    calls = {"count": 0}
+
+    def spying_apply_transforms(
+        fixed: FakeAntsImage,
+        moving: FakeAntsImage,
+        transformlist=None,
+        interpolator: str = "nearestNeighbor",
+        **kwargs: object,
+    ) -> FakeAntsImage:
+        calls["count"] += 1
+        return fake_apply_transforms(
+            fixed,
+            moving,
+            transformlist=transformlist,
+            interpolator=interpolator,
+            **kwargs,
+        )
+
+    fake_ants = sys.modules["ants"]
+    monkeypatch.setattr(
+        fake_ants,
+        "apply_transforms",
+        spying_apply_transforms,
+        raising=True,
+    )
+
+    map_annotations_safely = annotations_module.map_annotations_safely
+    data = np.array([[1, 2], [3, 4]], dtype=np.int16)
+    moving = FakeAntsImage(data)
+    fixed = FakeAntsImage(np.zeros_like(data))
+
+    _ = map_annotations_safely(moving, fixed, transformlist=["dummy"])
+
+    assert calls["count"] == 1

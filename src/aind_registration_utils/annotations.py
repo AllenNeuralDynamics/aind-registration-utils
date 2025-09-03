@@ -10,11 +10,11 @@ def map_annotations_safely(
     moving_annotations, fixed, transformlist, interpolator="nearestNeighbor", **kwargs
 ):
     """
-    ANTs cannot map annotations with extremely large integer indicies.
+    ANTs cannot map annotations with extremely large integer indices.
     If you try, the result is slightly distorted values which can throw
     off e.g. atlas indexing.
 
-    This fixes a bug with large indicies, mapping them first to smaller values,
+    This fixes a bug with large indices, mapping them first to smaller values,
     warping them, then mapping them back to the original index.
 
     Parameters
@@ -40,7 +40,7 @@ def map_annotations_safely(
         label values preserved.
     """
     # Remap annotations to an ANTs integer image.
-    origional_index, index_mapping = np.unique(
+    original_index, index_mapping = np.unique(
         moving_annotations.view(), return_inverse=True
     )
     int_image = ants.from_numpy(index_mapping.astype("float"))
@@ -63,9 +63,7 @@ def map_annotations_safely(
     )
 
     # Map indices back to original
-    warped_numpy_annotations = origional_index[
-        warped_int_annotations.view().astype(int)
-    ]
+    warped_numpy_annotations = original_index[warped_int_annotations.view().astype(int)]
     warped_annotation = ants.from_numpy(warped_numpy_annotations)
     warped_annotation = ants.copy_image_info(
         fixed,
@@ -75,7 +73,7 @@ def map_annotations_safely(
     # Manually check that no labels changed. Raise an error if it did.
     unique_warped_labels = np.unique(warped_annotation.view())
     for x in unique_warped_labels:
-        if x not in origional_index:
+        if x not in original_index:
             raise ValueError(
                 "A value exists in the warped annotations that was not in the starting annotations."
             )
