@@ -228,7 +228,9 @@ class TestApplyTransformsAutoBbox(unittest.TestCase):
         # Verify custom parameters used in make_image
         make_kwargs = mock_make.call_args[1]
         self.assertEqual(make_kwargs["spacing"], custom_spacing)
-        self.assertEqual(make_kwargs["direction"], tuple(custom_direction))
+        # Direction should be reshaped to (3,3) matrix form
+        expected_direction = np.array(custom_direction).reshape((3, 3))
+        np.testing.assert_array_equal(make_kwargs["direction"], expected_direction)
         # Origin should be adjusted based on bounding box calculation
 
     @patch("aind_registration_utils.ants.ants.apply_transforms")
