@@ -50,7 +50,7 @@ def map_annotations_safely(
     # Ensure dtype consistency and compare
     int_image_cast = int_image.view().astype(index_mapping.dtype)
     assert np.array_equal(int_image_cast, index_mapping), (
-        "There appears to have been a rounding error during type conversion. Please check!"
+        "There appears to have been a rounding error during type conversion."
     )
 
     # Apply the warp
@@ -75,7 +75,7 @@ def map_annotations_safely(
     for x in unique_warped_labels:
         if x not in original_index:
             raise ValueError(
-                "A value exists in the warped annotations that was not in the starting annotations."
+                "Warped array contains a value not in starting annotations."
             )
 
     return warped_annotation
