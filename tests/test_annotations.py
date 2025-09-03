@@ -75,7 +75,9 @@ def fake_apply_transforms(
     return moved
 
 
-def _install_fake_ants_in_sys_modules(monkeypatch: pytest.MonkeyPatch) -> types.SimpleNamespace:
+def _install_fake_ants_in_sys_modules(
+    monkeypatch: pytest.MonkeyPatch,
+) -> types.SimpleNamespace:
     fake_ants = types.SimpleNamespace(
         from_numpy=fake_from_numpy,
         copy_image_info=fake_copy_image_info,
