@@ -23,7 +23,7 @@ def map_annotations_safely(moving_annotations,
     ----------
     moving_annotations : ants.ANTsImage
         The source annotation image to be warped.
-        (e.g. region IDs from the CCF altas).
+        (e.g. region IDs from the CCF atlas).
     fixed : ants.ANTsImage
         The reference image defining the target space for the warp.
     transformlist : list of str
