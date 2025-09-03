@@ -14,6 +14,15 @@ import numpy as np
 import pandas as pd
 
 
+def apply_ants_transforms_to_point_arr(arr, transform_list, **kwargs):
+    dim = arr.shape[1]
+    cols = list("xyz")[:dim]
+    df = pd.DataFrame(arr, columns=cols)
+    warped_df = ants.apply_transforms_to_points(dim, df, transform_list, **kwargs)
+    warped_arr = warped_df[cols].to_numpy()
+    return warped_arr
+
+
 def apply_ants_transforms_to_point_dict(pts_dict, transform_list, **kwargs):
     """
     Apply ANTs spatial transforms to a dictionary of points.
@@ -48,17 +57,10 @@ def apply_ants_transforms_to_point_dict(pts_dict, transform_list, **kwargs):
     >>> transformed_points = apply_ants_transforms_to_point_dict(points,
     ... transforms)
     """
-    pt_arr = np.vstack(list(pts_dict.values()))
-    pt_df = pd.DataFrame(
-        {
-            "x": pt_arr[:, 0],
-            "y": pt_arr[:, 1],
-            "z": pt_arr[:, 2],
-        }
-    )
-    tx_pt_df = ants.apply_transforms_to_points(3, pt_df, transform_list, **kwargs)
-    tx_pts_dict = {k: tx_pt_df.iloc[i, :].values for i, k in enumerate(pts_dict.keys())}
-    return tx_pts_dict
+    arr = np.vstack(list(pts_dict.values()))
+    warped_arr = apply_ants_transforms_to_point_arr(arr, transform_list, **kwargs)
+    warped_pts_dict = {k: warped_arr[i] for i, k in enumerate(pts_dict)}
+    return warped_pts_dict
 
 
 def _check_ants_prefix(prefix):
@@ -324,14 +326,14 @@ def combine_syn_and_second_transform(
     return fwd_tx_cmb, rev_tx_cmb
 
 
-def _surface_samples(size: Sequence[int], n: int = 2) -> List[Tuple[float, ...]]:  # noqa: C901
+def _surface_samples(size: Sequence[int], n: int = 2) -> List[Tuple[int, ...]]:  # noqa: C901
     """
     Generate sample index coordinates on an image's surface.
 
-    This returns integer-like (but stored as float) index coordinates on the
-    outer surface of a 2D or 3D array. With `n=2`, this yields only the corners.
-    With `n>2`, it yields a sparse grid on each face (x-min/x-max, y-min/y-max,
-    and for 3D, z-min/z-max).
+    This returns integer index coordinates on the outer surface of a 2D or 3D
+    array. With `n=2`, this yields only the corners.  With `n>2`, it yields a
+    sparse grid on each face (x-min/x-max, y-min/y-max, and for 3D,
+    z-min/z-max).
 
     Parameters
     ----------
@@ -367,36 +369,36 @@ def _surface_samples(size: Sequence[int], n: int = 2) -> List[Tuple[float, ...]]
     if n < 2:
         raise ValueError("`n` must be >= 2")
 
-    ax = [np.linspace(0, s - 1, n) for s in size]
-    pts: List[Tuple[float, ...]] = []
+    ax = [np.linspace(0, s - 1, n, dtype=np.intp) for s in size]
+    pts: List[Tuple[int, ...]] = []
 
     if dims == 2:
         xs, ys = ax
         # left/right edges
         for i in (0, n - 1):
             for j in range(n):
-                pts.append((float(xs[i]), float(ys[j])))
+                pts.append((int(xs[i]), int(ys[j])))
         # top/bottom edges (avoid duplicates at corners)
         for j in (0, n - 1):
             for i in range(1, n - 1):
-                pts.append((float(xs[i]), float(ys[j])))
+                pts.append((int(xs[i]), int(ys[j])))
     else:
         xs, ys, zs = ax
         # x-min/x-max faces
         for i in (0, n - 1):
             for j in range(n):
                 for k in range(n):
-                    pts.append((float(xs[i]), float(ys[j]), float(zs[k])))
+                    pts.append((int(xs[i]), int(ys[j]), int(zs[k])))
         # y-min/y-max faces (skip edges already included along x faces)
         for j in (0, n - 1):
             for i in range(1, n - 1):
                 for k in range(n):
-                    pts.append((float(xs[i]), float(ys[j]), float(zs[k])))
+                    pts.append((int(xs[i]), int(ys[j]), int(zs[k])))
         # z-min/z-max faces (skip edges already included)
         for k in (0, n - 1):
             for i in range(1, n - 1):
                 for j in range(1, n - 1):
-                    pts.append((float(xs[i]), float(ys[j]), float(zs[k])))
+                    pts.append((int(xs[i]), int(ys[j]), int(zs[k])))
 
     return pts
 
@@ -468,6 +470,7 @@ def apply_transforms_auto_bbox(
     pad_voxels: int = 1,
     interpolator: str = "linear",
     default_value: float | int = 0,
+    **kwargs,
 ) -> Tuple[ants.ANTsImage, ants.ANTsImage]:
     """
     Warp `moving` into fixed space using a reference grid that *auto-fits*
@@ -574,7 +577,11 @@ def apply_transforms_auto_bbox(
     cols = list("xyz")[:dim]
     df = pd.DataFrame(phys_m, columns=cols)
     warped_df = ants.apply_transforms_to_points(
-        dim, df, transformlist, whichtoinvert=whichtoinvert
+        dim,
+        df,
+        transformlist,
+        whichtoinvert=whichtoinvert,
+        **kwargs,
     )
     phys_f = warped_df[cols].to_numpy()
 
@@ -594,9 +601,9 @@ def apply_transforms_auto_bbox(
     ref = ants.make_image(
         imagesize=tuple(map(int, size)),
         voxval=0,
-        spacing=tuple(spacing),
-        origin=tuple(origin_out.tolist()),
-        direction=tuple(direction),
+        spacing=spacing,
+        origin=origin_out.tolist(),
+        direction=D,
         pixeltype=moving.pixeltype,  # optional: match moving’s pixel type
     )
     warped = ants.apply_transforms(
