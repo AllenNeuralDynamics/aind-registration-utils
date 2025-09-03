@@ -44,9 +44,13 @@ def map_annotations_safely(moving_annotations,
     # Remap annoations to an ANTs integer image.
     origional_index,index_mapping = np.unique(moving_annotations.view(),
                                               return_inverse=True)
-    int_image = ants.from_numpy(index_mapping)
+    int_image = ants.from_numpy(index_mapping.astype('float')).astype('uint32')
     int_image = ants.copy_image_info(moving_annotations,
                                      int_image)
+    # Check that conversion to ants didn't introduce errors.
+    assert np.all(int_image.view() == index_mapping),\
+        'There appears to have been a rounding error durring type conversion. Please check!'
+
 
     # Apply the warp
     warped_int_annotations = ants.apply_transforms(fixed,int_image,
@@ -59,7 +63,7 @@ def map_annotations_safely(moving_annotations,
 
 
     # Manually check that no labels changed. Raise an error if it did.
-    unique_warped_labels = np.unique(X.view())
+    unique_warped_labels = np.unique(warped_annotation.view())
     for x in unique_warped_labels:
         if x not in origional_index:
             raise ValueError('A value exists in the warped annotations that was not in the starting annotations.')
