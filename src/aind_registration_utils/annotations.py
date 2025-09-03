@@ -49,7 +49,7 @@ def map_annotations_safely(moving_annotations,
     int_image = ants.copy_image_info(moving_annotations,
                                      int_image)
     # Check that conversion to ants didn't introduce errors.
-    assert np.all(int_image.view() == index_mapping),\
+    assert np.all(int_image.view().astype(index_mapping.dtype) == index_mapping),\
         'There appears to have been a rounding error durring type conversion. Please check!'
 
 
