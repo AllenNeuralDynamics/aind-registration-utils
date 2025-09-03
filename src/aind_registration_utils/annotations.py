@@ -41,7 +41,7 @@ def map_annotations_safely(moving_annotations,
         The warped annotation image in the fixed space, with the original
         label values preserved.
     """
-    # Remap annoations to an ANTs integer image.
+    # Remap annotations to an ANTs integer image.
     origional_index,index_mapping = np.unique(moving_annotations.view(),
                                               return_inverse=True)
     int_image = ants.from_numpy(index_mapping.astype("float"))
