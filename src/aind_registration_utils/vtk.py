@@ -2,11 +2,17 @@
 Code for handling manual keypoints transforms using vtk
 """
 
+from __future__ import annotations
+
 import numpy as np
+import numpy.typing as npt
 import vtk
 
 
-def define_transform(source_landmarks, target_landmarks):
+def define_transform(
+    source_landmarks: npt.NDArray[np.floating],
+    target_landmarks: npt.NDArray[np.floating],
+) -> vtk.vtkThinPlateSplineTransform:
     """
     Defines a non-linear warp between a set of source and target landmarks
 
@@ -39,7 +45,10 @@ def define_transform(source_landmarks, target_landmarks):
     return transform
 
 
-def apply_transform(transform, points):
+def apply_transform(
+    transform: vtk.vtkThinPlateSplineTransform,
+    points: npt.NDArray[np.floating],
+) -> npt.NDArray[np.floating]:
     """
     Applies a non-linear warp to a set of points
 

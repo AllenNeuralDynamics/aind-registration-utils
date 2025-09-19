@@ -2,13 +2,21 @@
 Module for handling annotation images in ants
 """
 
+from __future__ import annotations
+
+from typing import Any
+
 import ants
 import numpy as np
 
 
 def map_annotations_safely(
-    moving_annotations, fixed, transformlist, interpolator="nearestNeighbor", **kwargs
-):
+    moving_annotations: ants.ANTsImage,
+    fixed: ants.ANTsImage,
+    transformlist: list[str],
+    interpolator: str = "nearestNeighbor",
+    **kwargs: Any,
+) -> ants.ANTsImage:
     """
     ANTs cannot map annotations with extremely large integer indices.
     If you try, the result is slightly distorted values which can throw

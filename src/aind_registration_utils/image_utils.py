@@ -1,11 +1,16 @@
+from __future__ import annotations
+
+from typing import Any
+
 import ants
 import numpy as np
+import numpy.typing as npt
 import scipy.ndimage as ni
 from skimage.filters import threshold_li
 from skimage.measure import label
 
 
-def get_largest_cc(segmentation):
+def get_largest_cc(segmentation: npt.NDArray[np.integer]) -> Any:
     """
     Return the largest connected component from a binary segmentation.
 
@@ -34,7 +39,9 @@ def get_largest_cc(segmentation):
     return labels == largest_cc_index
 
 
-def perc_normalization(ants_img, percentiles=None):
+def perc_normalization(
+    ants_img: ants.ANTsImage, percentiles: list[float] | None = None
+) -> ants.ANTsImage:
     if percentiles is None:
         percentiles = [2, 98]
     """
@@ -70,7 +77,7 @@ def perc_normalization(ants_img, percentiles=None):
     return out
 
 
-def get_threshold_li(arr_img: np.ndarray):
+def get_threshold_li(arr_img: npt.NDArray[np.floating]) -> Any:
     """
     Compute the optimal Li threshold for a 3D image array.
 
@@ -88,7 +95,7 @@ def get_threshold_li(arr_img: np.ndarray):
     return low_thresh
 
 
-def cleanup_mask(arr_mask: np.ndarray):
+def cleanup_mask(arr_mask: npt.NDArray[np.bool_]) -> npt.NDArray[np.bool_]:
     """
     Clean up a binary mask by filling holes, dilating, closing, and keeping the
     largest component.
@@ -117,10 +124,10 @@ def cleanup_mask(arr_mask: np.ndarray):
     mask = ni.binary_closing(mask).astype(int)
     mask = get_largest_cc(mask)
 
-    return mask
+    return mask  # type: ignore[no-any-return]
 
 
-def get_mask(ants_img):
+def get_mask(ants_img: ants.ANTsImage) -> ants.ANTsImage:
     """
     Generate a cleaned binary mask for an ANTs image using Li thresholding and
     morphological cleanup.
@@ -158,7 +165,7 @@ def get_mask(ants_img):
     return ants_img_mask
 
 
-def reflect_ants_image(image, axis=0):
+def reflect_ants_image(image: ants.ANTsImage, axis: int = 0) -> ants.ANTsImage:
     """
     Reflect (flip) an ANTs image along the specified axis.
 
@@ -180,14 +187,14 @@ def reflect_ants_image(image, axis=0):
 
 
 def fast_n4_preprocesses(
-    image,
-    resample_spacing=None,
-    level=2,
-    output_filename=None,
-    flip_lr=False,
-    flip_ap=False,
-    spline_size=15,
-):
+    image: ants.ANTsImage,
+    resample_spacing: list[float] | None = None,
+    level: int = 2,
+    output_filename: str | None = None,
+    flip_lr: bool = False,
+    flip_ap: bool = False,
+    spline_size: float = 15,
+) -> ants.ANTsImage:
     if resample_spacing is None:
         resample_spacing = [0.1, 0.1, 0.1]
     """

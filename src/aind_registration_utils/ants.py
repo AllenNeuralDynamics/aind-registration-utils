@@ -4,17 +4,23 @@ Module for ANTs (Advanced Normalization Tools) registration utilities.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, List, Optional, Sequence, Tuple
+from typing import Any
 
 import ants
 import numpy as np
+import numpy.typing as npt
 
 # import SimpleITK as sitk
 import pandas as pd
 
 
-def apply_ants_transforms_to_point_arr(arr, transform_list, **kwargs):
+def apply_ants_transforms_to_point_arr(
+    arr: npt.NDArray[np.floating],
+    transform_list: list[str],
+    **kwargs: Any,
+) -> Any:
     dim = arr.shape[1]
     cols = list("xyz")[:dim]
     df = pd.DataFrame(arr, columns=cols)
@@ -23,7 +29,11 @@ def apply_ants_transforms_to_point_arr(arr, transform_list, **kwargs):
     return warped_arr
 
 
-def apply_ants_transforms_to_point_dict(pts_dict, transform_list, **kwargs):
+def apply_ants_transforms_to_point_dict(
+    pts_dict: dict[str, Sequence[float]],
+    transform_list: list[str],
+    **kwargs: Any,
+) -> dict[str, Any]:
     """
     Apply ANTs spatial transforms to a dictionary of points.
 
@@ -63,7 +73,7 @@ def apply_ants_transforms_to_point_dict(pts_dict, transform_list, **kwargs):
     return warped_pts_dict
 
 
-def _check_ants_prefix(prefix):
+def _check_ants_prefix(prefix: str | Path) -> str:
     """
     Checks and formats the given ANTs prefix.
 
@@ -88,15 +98,15 @@ def _check_ants_prefix(prefix):
 
 
 def ants_register_syn(
-    fixed_img,
-    moving_img,
-    rigid_kwargs=dict(),
-    affine_kwargs=dict(),
-    syn_kwargs=dict(),
-    syn_save_prefix="",
-    do_rigid=True,
-    do_affine=True,
-):
+    fixed_img: ants.ANTsImage,
+    moving_img: ants.ANTsImage,
+    rigid_kwargs: dict[str, Any] | None = None,
+    affine_kwargs: dict[str, Any] | None = None,
+    syn_kwargs: dict[str, Any] | None = None,
+    syn_save_prefix: str | Path = "",
+    do_rigid: bool = True,
+    do_affine: bool = True,
+) -> dict[str, Any]:
     """
     Perform SyN registration using ANTs with a two-stage initialization (rigid
     followed by affine).
@@ -144,6 +154,13 @@ def ants_register_syn(
     >>> moving = ants.image_read('path/to/moving_image.nii.gz')
     >>> syn_results = ants_register_syn_cc(fixed, moving, 'output_prefix_')
     """
+    if rigid_kwargs is None:
+        rigid_kwargs = {}
+    if affine_kwargs is None:
+        affine_kwargs = {}
+    if syn_kwargs is None:
+        syn_kwargs = {}
+
     syn_kwargs_def = dict(
         syn_metric="CC",
         syn_sampling=2,
@@ -180,16 +197,16 @@ def ants_register_syn(
         type_of_transform="SyN",
         **syn_comb_kwargs,
     )
-    return tx_syn
+    return tx_syn  # type: ignore[no-any-return]
 
 
 def combine_syn_txs(
-    fixed_img,
-    moving_img,
-    tx_syn,
-    fwd_prefix,
-    rev_prefix,
-):
+    fixed_img: ants.ANTsImage,
+    moving_img: ants.ANTsImage,
+    tx_syn: dict[str, Any],
+    fwd_prefix: str | Path,
+    rev_prefix: str | Path,
+) -> tuple[ants.ANTsImage, ants.ANTsImage]:
     """
     Combine transformations for mouse-to-in vivo registrations.
 
@@ -250,14 +267,14 @@ def combine_syn_txs(
 
 
 def combine_syn_and_second_transform(
-    fixed_img,
-    moving_img,
-    fwd_tx_syn,
-    invivo_ccf_path,
-    other_fwd_path,
-    other_rev_path,
-    combined_prefix,
-):
+    fixed_img: ants.ANTsImage,
+    moving_img: ants.ANTsImage,
+    fwd_tx_syn: dict[str, Any],
+    invivo_ccf_path: str | Path,
+    other_fwd_path: str | Path,
+    other_rev_path: str | Path,
+    combined_prefix: str | Path,
+) -> tuple[ants.ANTsImage, ants.ANTsImage]:
     """
     Combine transformations for mouse-to-CCF (Common Coordinate Framework)
     registrations.
@@ -326,7 +343,7 @@ def combine_syn_and_second_transform(
     return fwd_tx_cmb, rev_tx_cmb
 
 
-def _surface_samples(size: Sequence[int], n: int = 2) -> List[Tuple[int, ...]]:  # noqa: C901
+def _surface_samples(size: Sequence[int], n: int = 2) -> list[tuple[int, ...]]:  # noqa: C901
     """
     Generate sample index coordinates on an image's surface.
 
@@ -370,7 +387,7 @@ def _surface_samples(size: Sequence[int], n: int = 2) -> List[Tuple[int, ...]]: 
         raise ValueError("`n` must be >= 2")
 
     ax = [np.linspace(0, s - 1, n, dtype=np.intp) for s in size]
-    pts: List[Tuple[int, ...]] = []
+    pts: list[tuple[int, ...]] = []
 
     if dims == 2:
         xs, ys = ax
@@ -408,7 +425,7 @@ def _to_continuous_index(
     origin: Sequence[float],
     spacing: Sequence[float],
     direction: Sequence[float],
-) -> np.ndarray:
+) -> npt.NDArray[Any]:
     """
     Convert physical coordinates to continuous index coordinates.
 
@@ -455,23 +472,23 @@ def _to_continuous_index(
     phys = np.asarray(phys_pts, dtype=float)
     if phys.ndim != 2 or phys.shape[1] != dim:
         raise ValueError(f"`phys_pts` must have shape (N, {dim})")
-    return ((phys - o) @ D.T) / s
+    return ((phys - o) @ D.T) / s  # type: ignore[no-any-return]
 
 
 def apply_transforms_auto_bbox(
     moving: ants.ANTsImage,
     transformlist: Sequence[Any],
-    whichtoinvert: Optional[Sequence[bool]] = None,
-    fixed: Optional[ants.ANTsImage] = None,
-    spacing: Optional[Sequence[float]] = None,
-    direction: Optional[Sequence[float]] = None,
-    origin: Optional[Sequence[float]] = None,
+    whichtoinvert: Sequence[bool] | None = None,
+    fixed: ants.ANTsImage | None = None,
+    spacing: Sequence[float] | None = None,
+    direction: Sequence[float] | None = None,
+    origin: Sequence[float] | None = None,
     samples_per_edge: int = 2,
     pad_voxels: int = 1,
     interpolator: str = "linear",
-    default_value: float | int = 0,
-    **kwargs,
-) -> Tuple[ants.ANTsImage, ants.ANTsImage]:
+    default_value: float = 0,
+    **kwargs: Any,
+) -> tuple[ants.ANTsImage, ants.ANTsImage]:
     """
     Warp `moving` into fixed space using a reference grid that *auto-fits*
     the warped extent of `moving`.

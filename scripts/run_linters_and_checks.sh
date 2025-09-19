@@ -19,7 +19,7 @@ main() {
     uv run --frozen mypy
     uv run --frozen interrogate -v
     uv run --frozen codespell --check-filenames
-    uv run --frozen pytest --cov aind_registratio_utils
+    uv run --frozen pytest --cov aind_registration_utils
   fi
 }
 
