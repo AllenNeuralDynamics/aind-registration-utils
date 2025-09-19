@@ -37,11 +37,12 @@ register_individual_to_template = "aind_registration_utils.scripts.register_indi
 
 [dependency-groups]
 types = [
+    "mypy",
     "pandas-stubs",
     "scipy-stubs",
 ]
-dev = [{ include-group = "types" }, "codespell", "pytest", "pytest-cov", "ruff", "interrogate", "mypy"]
-vscode = [{ include-group = "dev" }, "ipykernel", "pip", "ipympl"]
+dev = [{ include-group = "types" }, "codespell", "pytest", "pytest-cov", "ruff", "interrogate"]
+jupyter = [{ include-group = "dev" }, "ipykernel", "pip"]
 docs = [
   { include-group = "dev" },
   "mkdocs",
@@ -130,8 +131,7 @@ disallow_incomplete_defs = false
 [tool.commitizen]
 version_provider = "pep621"
 version_files = [
-  "pyproject.toml:version",
-  "src/aind_registration_utils/__init__.py",
+  "src/aind_registration_utils/__init__.py:__version__",
 ]
 update_changelog_on_bump = true
 tag_format = "v$version"
