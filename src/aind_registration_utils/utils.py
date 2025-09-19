@@ -2,11 +2,17 @@
 Utility functions
 """
 
+from __future__ import annotations
+
 import os
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from aind_registration_utils.types import PathLike
 
 
-def check_output_path(output_path=None):
+def check_output_path(output_path: PathLike | None = None) -> Path:
     """
     Check if the provided output path is a valid directory.
 

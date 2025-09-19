@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "aind-registration-utils"
 description = "Tools for registration of individual brains to a template brain"
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.10"
 authors = [
   { name = "Galen Lynch", email = "galen@galenlynch.com" },
@@ -36,7 +36,11 @@ Changelog = "https://github.com/AllenNeuralDynamics/aind-registration-utils/blob
 register_individual_to_template = "aind_registration_utils.scripts.register_individual_to_template:main"
 
 [dependency-groups]
-dev = ["codespell", "pytest", "pytest-cov", "ruff", "interrogate", "mypy"]
+types = [
+    "pandas-stubs",
+    "scipy-stubs",
+]
+dev = [{ include-group = "types" }, "codespell", "pytest", "pytest-cov", "ruff", "interrogate", "mypy"]
 vscode = [{ include-group = "dev" }, "ipykernel", "pip", "ipympl"]
 docs = [
   { include-group = "dev" },
@@ -50,17 +54,19 @@ docs = [
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.setuptools.dynamic]
-version = { attr = "aind_registration_utils.__version__" }
+[tool.setuptools.package-data]
+"aind_registration_utils" = ["py.typed"]
+
 
 [tool.ruff]
 line-length = 88
-target-version = 'py313'
+target-version = 'py310'
 
 
 [tool.ruff.lint]
-extend-select = ["Q", "RUF100", "C90", "I", "F", "E", "W"]
-extend-ignore = []
+extend-select = ["Q", "RUF100", "C90", "I", "F", "E", "W", "UP", "ANN", "PYI"]
+extend-ignore = ["ANN401"]
+per-file-ignores = { "tests/*.py" = ["ANN"], "docs/**/*.py" = ["ANN"], "notebooks/*.py" = ["ANN"] }
 mccabe = { max-complexity = 14 }
 pydocstyle = { convention = "numpy" }
 
@@ -90,11 +96,42 @@ exclude = [
   "site",
 ]
 
+[tool.mypy]
+files = ["src/aind_registration_utils"]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "ants.*",
+    "vtk.*",
+    "skimage.*",
+    "aind_anatomical_utils.*"
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
 [tool.commitizen]
 version_provider = "pep621"
 version_files = [
-  "pyproject.toml",
-  "src/aind_registration_utils/__init__.py:__version__",
+  "pyproject.toml:version",
+  "src/aind_registration_utils/__init__.py",
 ]
 update_changelog_on_bump = true
 tag_format = "v$version"

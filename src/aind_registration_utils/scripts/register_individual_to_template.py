@@ -2,6 +2,8 @@
 Register individual to template with points
 """
 
+from __future__ import annotations
+
 import argparse
 
 from aind_registration_utils.recipes import (
@@ -9,7 +11,7 @@ from aind_registration_utils.recipes import (
 )
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """
     Parse command-line arguments.
 
@@ -57,7 +59,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     """
     Main function to parse arguments and register an individual to a template
     using points files.

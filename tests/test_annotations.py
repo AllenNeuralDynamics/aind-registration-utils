@@ -35,7 +35,7 @@ class FakeAntsImage:
     def view(self):
         return self._arr
 
-    def astype(self, dtype) -> "FakeAntsImage":
+    def astype(self, dtype) -> FakeAntsImage:
         """Mimic ants image astype by returning a new image with same metadata."""
         return FakeAntsImage(
             self._arr.astype(dtype),

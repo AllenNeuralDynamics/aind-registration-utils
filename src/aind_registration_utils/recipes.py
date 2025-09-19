@@ -2,6 +2,10 @@
 Contains common registration recipes
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import ants
 from aind_anatomical_utils.slicer import (
     create_slicer_fcsv,
@@ -14,14 +18,19 @@ from aind_registration_utils.ants import (
 )
 from aind_registration_utils.utils import check_output_path
 
+if TYPE_CHECKING:
+    from typing import Any
+
+    from aind_registration_utils.types import PathLike
+
 
 def individual_to_template_with_points(
-    individual,
-    template,
-    pts_in_template,
-    output_prefix="",
-    syn_kwargs=dict(),
-):
+    individual: ants.ANTsImage,
+    template: ants.ANTsImage,
+    pts_in_template: dict[str, Any],
+    output_prefix: str = "",
+    syn_kwargs: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """
     Register an individual image to a template image and transform points from
     the template to the individual image space.
@@ -51,11 +60,13 @@ def individual_to_template_with_points(
         A dictionary of points transformed from the template image space to the
         individual image space.
     """
+    if syn_kwargs is None:
+        syn_kwargs = {}
     moving_fixed_tx_syn = ants_register_syn(
         fixed_img=template,
         moving_img=individual,
         syn_save_prefix=output_prefix,
-        **syn_kwargs,
+        syn_kwargs=syn_kwargs,
     )
     pts_in_individual = apply_ants_transforms_to_point_dict(
         pts_in_template,
@@ -65,14 +76,14 @@ def individual_to_template_with_points(
 
 
 def individual_to_template_with_points_files(
-    individual_scan,
-    individual_brain_mask,
-    template_path,
-    template_targets,
-    save_dir=None,
-    mouse_name=None,
-    syn_kwargs=dict(),
-):
+    individual_scan: PathLike,
+    individual_brain_mask: PathLike,
+    template_path: PathLike,
+    template_targets: PathLike,
+    save_dir: PathLike | None = None,
+    mouse_name: str | None = None,
+    syn_kwargs: dict[str, Any] | None = None,
+) -> None:
     """
     Registers an individual scan to a template and saves the transformed images
     and points.
@@ -123,10 +134,10 @@ def individual_to_template_with_points_files(
         mouse_img_masked,
         template_img,
         pts_in_template=template_target_pts,
-        output_prefix=save_dir,
+        output_prefix=str(save_dir),
         syn_kwargs=syn_kwargs,
     )
-    create_slicer_fcsv(save_dir / pt_save_name, pts_in_individual)
+    create_slicer_fcsv(str(save_dir / pt_save_name), pts_in_individual)
     ants.image_write(
         individual_template_tx_syn["warpedmovout"],
         str(save_dir / individual_in_template_save_name),
