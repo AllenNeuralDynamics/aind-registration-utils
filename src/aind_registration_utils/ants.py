@@ -20,20 +20,20 @@ def apply_ants_transforms_to_point_arr(
     arr: npt.NDArray[np.floating],
     transform_list: list[str],
     **kwargs: Any,
-) -> Any:
+) -> npt.NDArray[np.floating]:
     dim = arr.shape[1]
     cols = list("xyz")[:dim]
     df = pd.DataFrame(arr, columns=cols)
     warped_df = ants.apply_transforms_to_points(dim, df, transform_list, **kwargs)
     warped_arr = warped_df[cols].to_numpy()
-    return warped_arr
+    return warped_arr # type: ignore[no-any-return]
 
 
 def apply_ants_transforms_to_point_dict(
     pts_dict: dict[str, Sequence[float]],
     transform_list: list[str],
     **kwargs: Any,
-) -> dict[str, Any]:
+) -> dict[str, npt.NDArray[np.floating]]:
     """
     Apply ANTs spatial transforms to a dictionary of points.
 
