@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import ants
 import numpy as np
@@ -15,12 +15,21 @@ import numpy.typing as npt
 # import SimpleITK as sitk
 import pandas as pd
 
+if TYPE_CHECKING:
+    from aind_registration_utils.types import (
+        AntsImage,
+        FloatArray,
+        PathLike,
+        PointDict,
+        TransformList,
+    )
+
 
 def apply_ants_transforms_to_point_arr(
-    arr: npt.NDArray[np.floating],
-    transform_list: list[str],
+    arr: FloatArray,
+    transform_list: TransformList,
     **kwargs: Any,
-) -> npt.NDArray[np.floating]:
+) -> FloatArray:
     dim = arr.shape[1]
     cols = list("xyz")[:dim]
     df = pd.DataFrame(arr, columns=cols)
@@ -30,10 +39,10 @@ def apply_ants_transforms_to_point_arr(
 
 
 def apply_ants_transforms_to_point_dict(
-    pts_dict: dict[str, Sequence[float]],
-    transform_list: list[str],
+    pts_dict: PointDict,
+    transform_list: TransformList,
     **kwargs: Any,
-) -> dict[str, npt.NDArray[np.floating]]:
+) -> dict[str, FloatArray]:
     """
     Apply ANTs spatial transforms to a dictionary of points.
 
@@ -73,7 +82,7 @@ def apply_ants_transforms_to_point_dict(
     return warped_pts_dict
 
 
-def _check_ants_prefix(prefix: str | Path) -> str:
+def _check_ants_prefix(prefix: PathLike) -> str:
     """
     Checks and formats the given ANTs prefix.
 
@@ -98,12 +107,12 @@ def _check_ants_prefix(prefix: str | Path) -> str:
 
 
 def ants_register_syn(
-    fixed_img: ants.ANTsImage,
-    moving_img: ants.ANTsImage,
+    fixed_img: AntsImage,
+    moving_img: AntsImage,
     rigid_kwargs: dict[str, Any] | None = None,
     affine_kwargs: dict[str, Any] | None = None,
     syn_kwargs: dict[str, Any] | None = None,
-    syn_save_prefix: str | Path = "",
+    syn_save_prefix: PathLike = "",
     do_rigid: bool = True,
     do_affine: bool = True,
 ) -> dict[str, Any]:
@@ -201,12 +210,12 @@ def ants_register_syn(
 
 
 def combine_syn_txs(
-    fixed_img: ants.ANTsImage,
-    moving_img: ants.ANTsImage,
+    fixed_img: AntsImage,
+    moving_img: AntsImage,
     tx_syn: dict[str, Any],
-    fwd_prefix: str | Path,
-    rev_prefix: str | Path,
-) -> tuple[ants.ANTsImage, ants.ANTsImage]:
+    fwd_prefix: PathLike,
+    rev_prefix: PathLike,
+) -> tuple[AntsImage, AntsImage]:
     """
     Combine transformations for mouse-to-in vivo registrations.
 
@@ -239,7 +248,7 @@ def combine_syn_txs(
 
     Examples
     --------
-    >>> invivo = ants.image_read('path/to/invivo_image.nii.gz')
+    >>> invivo = ants.image_read()
     >>> mouse_masked = ants.image_read('path/to/mouse_masked_image.nii.gz')
     >>> mouse_tx = {
     ...     'fwdtransforms': ['path/to/fwd_transform.nii.gz'],
@@ -267,14 +276,14 @@ def combine_syn_txs(
 
 
 def combine_syn_and_second_transform(
-    fixed_img: ants.ANTsImage,
-    moving_img: ants.ANTsImage,
+    fixed_img: AntsImage,
+    moving_img: AntsImage,
     fwd_tx_syn: dict[str, Any],
-    invivo_ccf_path: str | Path,
-    other_fwd_path: str | Path,
-    other_rev_path: str | Path,
-    combined_prefix: str | Path,
-) -> tuple[ants.ANTsImage, ants.ANTsImage]:
+    invivo_ccf_path: PathLike,
+    other_fwd_path: PathLike,
+    other_rev_path: PathLike,
+    combined_prefix: PathLike,
+) -> tuple[AntsImage, AntsImage]:
     """
     Combine transformations for mouse-to-CCF (Common Coordinate Framework)
     registrations.
@@ -476,10 +485,10 @@ def _to_continuous_index(
 
 
 def apply_transforms_auto_bbox(
-    moving: ants.ANTsImage,
+    moving: AntsImage,
     transformlist: Sequence[Any],
     whichtoinvert: Sequence[bool] | None = None,
-    fixed: ants.ANTsImage | None = None,
+    fixed: AntsImage | None = None,
     spacing: Sequence[float] | None = None,
     direction: Sequence[float] | None = None,
     origin: Sequence[float] | None = None,
@@ -488,7 +497,7 @@ def apply_transforms_auto_bbox(
     interpolator: str = "linear",
     default_value: float = 0,
     **kwargs: Any,
-) -> tuple[ants.ANTsImage, ants.ANTsImage]:
+) -> tuple[AntsImage, AntsImage]:
     """
     Warp `moving` into fixed space using a reference grid that *auto-fits*
     the warped extent of `moving`.
