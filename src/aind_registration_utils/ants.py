@@ -26,7 +26,7 @@ def apply_ants_transforms_to_point_arr(
     df = pd.DataFrame(arr, columns=cols)
     warped_df = ants.apply_transforms_to_points(dim, df, transform_list, **kwargs)
     warped_arr = warped_df[cols].to_numpy()
-    return warped_arr # type: ignore[no-any-return]
+    return warped_arr  # type: ignore[no-any-return]
 
 
 def apply_ants_transforms_to_point_dict(
