@@ -1,3 +1,9 @@
+## v0.3.0 (2025-10-07)
+
+### Feat
+
+- add module to calculate domain and produce transform metadata
+
 ## v0.2.0 (2025-09-03)
 
 ### Feat
