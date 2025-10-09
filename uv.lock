@@ -35,7 +35,7 @@ wheels = [
 
 [[package]]
 name = "aind-registration-utils"
-version = "0.2.0"
+version = "0.3.1"
 source = { editable = "." }
 dependencies = [
     { name = "aind-anatomical-utils" },
@@ -99,7 +99,7 @@ types = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aind-anatomical-utils", specifier = ">=0.1,<0.3" },
+    { name = "aind-anatomical-utils", specifier = ">=0.1,<0.4" },
     { name = "aind-ants-transform-sidecar", specifier = ">=0.1,<0.2" },
     { name = "antspyx", specifier = ">=0.2,<0.7" },
     { name = "numpy", specifier = ">=1,<3" },
