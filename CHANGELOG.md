@@ -1,3 +1,9 @@
+## v0.4.0 (2025-10-10)
+
+### Feat
+
+- Add tools to make lateralized CCF
+
 ## v0.3.1 (2025-10-09)
 
 ### Fix
