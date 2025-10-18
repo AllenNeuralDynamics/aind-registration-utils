@@ -1,3 +1,9 @@
+## v0.4.1 (2025-10-18)
+
+### Fix
+
+- expand compat range of aind-anatomical-utils
+
 ## v0.4.0 (2025-10-10)
 
 ### Feat
