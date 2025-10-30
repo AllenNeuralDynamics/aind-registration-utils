@@ -1,3 +1,9 @@
+## v0.4.2 (2025-10-30)
+
+### Fix
+
+- when compacting labels, treat 0 as background
+
 ## v0.4.1 (2025-10-18)
 
 ### Fix
