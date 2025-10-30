@@ -12,11 +12,33 @@ import SimpleITK as sitk
 from numpy.typing import NDArray
 
 
+def _round_ants_image_to_uint32(img: ants.ANTsImage) -> ants.ANTsImage:
+    """
+    Round an ANTs image to uint32 type.
+
+    Parameters
+    ----------
+    img : ants.ANTsImage
+        Input ANTs image to be rounded and converted.
+
+    Returns
+    -------
+    ants.ANTsImage
+        New ANTs image with data rounded to nearest integer and
+        converted to uint32 type.
+    """
+    arr = img.view()
+    arr_rounded = np.round(arr).astype(np.uint32)
+    img_uint32 = ants.from_numpy(arr_rounded)
+    img_uint32 = ants.copy_image_info(img, img_uint32)
+    return img_uint32
+
+
 def map_annotations_safely(
     moving_annotations: ants.ANTsImage,
     fixed: ants.ANTsImage,
     transformlist: list[str],
-    interpolator: str = "nearestNeighbor",
+    interpolator: str = "genericLabel",
     **kwargs: Any,
 ) -> ants.ANTsImage:
     """
@@ -38,7 +60,7 @@ def map_annotations_safely(
         List of transforms (or paths to transform files) to apply,
         in the format expected by ``ants.apply_transforms``.
     interpolator : str, optional
-        Interpolation method for resampling. Default is 'nearestNeighbor',
+        Interpolation method for resampling. Default is 'genericLabel',
         which is appropriate for label images and atlas annotations.
     **kwargs : Any
         Additional keyword arguments passed to ``ants.apply_transforms``.
@@ -83,44 +105,30 @@ def map_annotations_safely(
     ... )
     """
     # Remap annotations to an ANTs integer image.
-    original_index, index_mapping = np.unique(
-        moving_annotations.view(), return_inverse=True
-    )
-    int_image = ants.from_numpy(index_mapping.astype("uint32"))
-    int_image = ants.copy_image_info(moving_annotations, int_image)
-    # Check that conversion to ants didn't introduce errors.
-    # Ensure dtype consistency and compare
-    int_image_cast = int_image.view().astype(index_mapping.dtype)
-    assert np.array_equal(int_image_cast, index_mapping), (
-        "There appears to have been a rounding error during type conversion."
-    )
+    annotation_arr = moving_annotations.view()
+    if np.issubdtype(annotation_arr.dtype, np.integer):
+        annotation_int_image = moving_annotations
+    else:
+        annotation_int_image = _round_ants_image_to_uint32(moving_annotations)
+
+    # Warped image will have the same pixel type as the fixed image.
+    # To avoid rounding issues, we convert fixed to integer type if needed.
+    fixed_arr = fixed.view()
+    if np.issubdtype(fixed_arr.dtype, np.integer):
+        fixed_int_image = fixed
+    else:
+        fixed_int_image = _round_ants_image_to_uint32(fixed)
 
     # Apply the warp
-    warped_int_annotations = ants.apply_transforms(
-        fixed,
-        int_image,
+    warped_img = ants.apply_transforms(
+        fixed_int_image,
+        annotation_int_image,
         transformlist=transformlist,
         interpolator=interpolator,
         **kwargs,
     )
 
-    # Map indices back to original
-    warped_numpy_annotations = original_index[warped_int_annotations.view().astype(int)]
-    warped_annotation = ants.from_numpy(warped_numpy_annotations)
-    warped_annotation = ants.copy_image_info(
-        fixed,
-        warped_annotation,
-    )
-
-    # Manually check that no labels changed. Raise an error if it did.
-    unique_warped_labels = np.unique(warped_annotation.view())
-    for x in unique_warped_labels:
-        if x not in original_index:
-            raise ValueError(
-                "Warped array contains a value not in starting annotations."
-            )
-
-    return warped_annotation
+    return warped_img
 
 
 def _get_lateralization_regions(
@@ -262,7 +270,70 @@ def _sitk_roi_numpy_slices(start: list[int], extent: list[int]) -> tuple[slice, 
     return tuple(sitk_slices[::-1])
 
 
-def _compact_labels_image_np(
+def _compact_labels_np(
+    arr: NDArray[np.integer], compact_dtype: type[np.unsignedinteger[Any]] = np.uint16
+) -> tuple[NDArray[np.unsignedinteger], NDArray[np.integer]]:
+    """
+    Create a compacted label array from a NumPy array.
+
+    Remaps annotation labels to a compact range [0, N-1] where N is the
+    number of unique labels. The output array is uint16 type, supporting
+    up to 65,535 unique labels.
+
+    Parameters
+    ----------
+    arr : NDArray[np.integer]
+        NumPy array containing annotation labels.
+    compact_dtype : type, optional
+        NumPy integer type for the compacted output array. Default is
+        np.uint16.
+
+    Returns
+    -------
+    compacted_arr : NDArray[np.uint16]
+        NumPy array with labels remapped to [0, N-1], type uint16.
+    unique_labels : NDArray[np.integer]
+        Array of unique annotation values from the input, sorted in
+        ascending order. Used to map compacted indices back to originals.
+
+    Notes
+    -----
+    The mapping satisfies: ``original_arr = unique_labels[compacted_arr]``
+    """
+    mask = arr == 0
+    if not mask.any():
+        # No background, compact all labels
+        unq_labels, inverse = np.unique(arr, return_inverse=True)
+        K = int(unq_labels.size)
+        if K >= np.iinfo(compact_dtype).max:
+            raise ValueError(
+                f"Too many unique labels ({K}) to compact into {compact_dtype} range."
+            )
+        compacted = inverse.astype(compact_dtype)
+    elif mask.all():
+        # All background
+        unq_labels = np.array([0], dtype=arr.dtype)
+        compacted = np.zeros_like(arr, dtype=compact_dtype)
+    else:
+        # Compact non-background labels
+        other_vals = arr[~mask]
+        unq_labels_non_bg, inverse = np.unique(other_vals, return_inverse=True)
+
+        K = int(unq_labels_non_bg.size)
+        if K > np.iinfo(compact_dtype).max:
+            raise ValueError(
+                f"Too many unique labels ({K + 1}) to compact "
+                f"into {compact_dtype} range."
+            )
+        compacted = np.zeros_like(arr, dtype=compact_dtype)
+        unq_inverse_compacted = inverse.astype(compact_dtype)
+        unq_inverse_compacted += 1  # shift by 1 to reserve 0 for background
+        compacted[~mask] = unq_inverse_compacted
+        unq_labels = np.concatenate([np.array([0], dtype=arr.dtype), unq_labels_non_bg])
+    return compacted, unq_labels
+
+
+def _compact_labels_image_np_to_sitk(
     arr: NDArray[np.integer], image: sitk.Image
 ) -> tuple[sitk.Image, NDArray[np.integer]]:
     """
@@ -292,11 +363,10 @@ def _compact_labels_image_np(
     -----
     The mapping satisfies: ``original_arr = unique_labels[compacted_arr]``
     """
-    unq_annotation_nos, unq_inverse = np.unique(arr, return_inverse=True)
-    unq_inverse_uint = unq_inverse.astype(np.uint16)
-    compacted_img = sitk.GetImageFromArray(unq_inverse_uint)
+    compacted, unq_labels = _compact_labels_np(arr)
+    compacted_img = sitk.GetImageFromArray(compacted)
     compacted_img.CopyInformation(image)
-    return compacted_img, unq_annotation_nos
+    return compacted_img, unq_labels
 
 
 def compact_labels_image(
@@ -348,7 +418,7 @@ def compact_labels_image(
     >>> expanded = expand_compacted_image(processed_img, labels)
     """
     arr = sitk.GetArrayViewFromImage(anno_img)
-    return _compact_labels_image_np(arr, anno_img)
+    return _compact_labels_image_np_to_sitk(arr, anno_img)
 
 
 def lateralize_and_compact_ccf_image(
@@ -488,7 +558,7 @@ def lateralize_and_compact_ccf_image(
     arr = sitk.GetArrayViewFromImage(ccf_anno_img).astype(np.int64)  # make a copy
     arr[sl] *= -1  # negate left half in-place
 
-    return _compact_labels_image_np(arr, ccf_anno_img)
+    return _compact_labels_image_np_to_sitk(arr, ccf_anno_img)
 
 
 def expand_compacted_image(
