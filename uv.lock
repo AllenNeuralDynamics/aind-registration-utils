@@ -104,7 +104,7 @@ types = [
 requires-dist = [
     { name = "aind-anatomical-utils", specifier = ">=0.1,<0.5" },
     { name = "aind-ants-transform-sidecar", specifier = ">=0.1,<0.2" },
-    { name = "antspyx", specifier = ">=0.2,<0.7" },
+    { name = "antspyx", specifier = ">=0.6.2" },
     { name = "commandants", specifier = ">=0.3,<0.4" },
     { name = "numpy", specifier = ">=1,<3" },
     { name = "pandas", specifier = ">=2,<3" },
@@ -169,7 +169,7 @@ wheels = [
 
 [[package]]
 name = "antspyx"
-version = "0.6.1"
+version = "0.6.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "matplotlib" },
@@ -184,24 +184,24 @@ dependencies = [
     { name = "statsmodels" },
     { name = "webcolors" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/64/e6/72ae72bf5e217237026bd4e24b3836959982a328d9c444b26fd53997815d/antspyx-0.6.1.tar.gz", hash = "sha256:fd3f3a1749fb5a22b5ef3e73be17bcf2d8cf30636796abe04b1ea356d449a193", size = 7185950, upload-time = "2025-06-25T22:58:18.703Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8b/50/a421ddf4f30ab6d47bd1867c4eb2680aadea94533c011e6ef6451f208054/antspyx-0.6.3.tar.gz", hash = "sha256:48d1f5b6b2e8a90f6f66f14cdbdd4c37e20268f5db84cb9ac99256ecb9c72386", size = 7196895, upload-time = "2026-02-24T01:46:00.875Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/68/1b/b28e03557f56622138d02e91f6365f2d0e95d619b28b49134d4f280ab80a/antspyx-0.6.1-cp310-cp310-macosx_13_0_x86_64.whl", hash = "sha256:035fefb1faae4cc0042fe04ac5a38c62be68df0fdc145a6e9c00999a5a2ab996", size = 19335384, upload-time = "2025-06-25T22:57:40.01Z" },
-    { url = "https://files.pythonhosted.org/packages/bd/a8/77f6692007cdd88b84812748cf57357422698b8b1b18432ca2666e8bf95c/antspyx-0.6.1-cp310-cp310-macosx_14_0_arm64.whl", hash = "sha256:27c3ec8db02592a3920a4617e79932dfda5b6e6bad9cbe83494d684159379406", size = 16556716, upload-time = "2025-06-25T22:57:42.577Z" },
-    { url = "https://files.pythonhosted.org/packages/14/d8/9f38c2c365da2ae4bf58daf345c2a0227cee4db8112c6a4b67143c60b4ec/antspyx-0.6.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b453dad11146263a75ef4948c01ffe518c7e511c572afb85bb9943670563e662", size = 22382199, upload-time = "2025-06-25T22:57:44.725Z" },
-    { url = "https://files.pythonhosted.org/packages/8d/e4/79cd20a1337d1152e4bed225d4c0bc58ea46086a64c8610f4e3e713eaf44/antspyx-0.6.1-cp310-cp310-win_amd64.whl", hash = "sha256:70c693d9c72a87564b00d5cec79fbefac268fb130d47aab54a41591ce7756d0f", size = 8806095, upload-time = "2025-06-25T22:57:46.943Z" },
-    { url = "https://files.pythonhosted.org/packages/48/80/26f49d0722501df97a7e00c9b11ba8f005bc7e85cf4c233e83f4e00aae42/antspyx-0.6.1-cp311-cp311-macosx_13_0_x86_64.whl", hash = "sha256:5aec52b435c943a170e5f49f59bf44fe49844186f9aa28b09bcbefff70861bf6", size = 19335206, upload-time = "2025-06-25T22:57:49.492Z" },
-    { url = "https://files.pythonhosted.org/packages/50/2b/e9a0be94062490b5535b401e00e1e1f09f9f8b8d40f1d39afefc615ee8f5/antspyx-0.6.1-cp311-cp311-macosx_14_0_arm64.whl", hash = "sha256:3047fe3ce32e1826ab6cd714243292171a4fecd38a4555094732d17c1bf82a8e", size = 16557954, upload-time = "2025-06-25T22:57:51.349Z" },
-    { url = "https://files.pythonhosted.org/packages/dc/73/bb2e603f5a1c392d63246e185037d14284bae50a7be05483129f1607506a/antspyx-0.6.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b11eaaebfed77d3504df541071ae3920fd714cd7e89dd0ad1fec9be9b8a50ae9", size = 22384514, upload-time = "2025-06-25T22:57:53.587Z" },
-    { url = "https://files.pythonhosted.org/packages/ab/06/1e8c57b7e7634c6a20451492462db582a02df0554f9aacc26d8d0175271a/antspyx-0.6.1-cp311-cp311-win_amd64.whl", hash = "sha256:8e8ac4cebf82776b4fc565ed49990a18b0e89c8e04c2a61999f96bf939ee919a", size = 8805723, upload-time = "2025-06-25T22:57:55.417Z" },
-    { url = "https://files.pythonhosted.org/packages/4b/e8/ed6e574fd2d589756b6954ae697ef5b1b484eb2b9814f89fa48016033d80/antspyx-0.6.1-cp312-cp312-macosx_13_0_x86_64.whl", hash = "sha256:e9315a85c01cf168f10f3f2694f16158b722b6422f7dabebf1749ffbe2a3e07a", size = 19323404, upload-time = "2025-06-25T22:57:59.28Z" },
-    { url = "https://files.pythonhosted.org/packages/5f/f7/4205f9f8b518447183dcef6f80259e04f758d03bf19d83cfec8b78422884/antspyx-0.6.1-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:e17c303c8cf0c88714188513866b7b05b765ebf51845e5516411e60f78df68ba", size = 16549329, upload-time = "2025-06-25T22:58:01.097Z" },
-    { url = "https://files.pythonhosted.org/packages/6b/ad/28893cf07025bee898d133f18876d9a07305ffa652cde0ae5d34394445b8/antspyx-0.6.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:01f4940bff034bc01598bf498d43fa04c93d43b4e5caf6cb7a856a1b1c60a2ad", size = 22381251, upload-time = "2025-06-25T22:58:02.965Z" },
-    { url = "https://files.pythonhosted.org/packages/37/08/e48d693536c86c386959d0bfb6b8b69c4ac6df36214975a558ded90e7bf2/antspyx-0.6.1-cp312-cp312-win_amd64.whl", hash = "sha256:3188fb1ffed7049361c27cc5ea168aeeb16038f04ec214c9d303ec540285b6a1", size = 8804924, upload-time = "2025-06-25T22:58:04.749Z" },
-    { url = "https://files.pythonhosted.org/packages/86/ce/5a46f01259bcfb94a959d1d770342288d90a8646de001fd525c8b31058d6/antspyx-0.6.1-cp313-cp313-macosx_13_0_x86_64.whl", hash = "sha256:b07800a31d121224fca90728e515c3d0386de3d58dbf67bd20eb0706c6cc1aae", size = 19323308, upload-time = "2025-06-25T22:58:06.708Z" },
-    { url = "https://files.pythonhosted.org/packages/40/80/960ee01bf6595ecac5be45876ab571f1a10991b67cf24de582e549584ea1/antspyx-0.6.1-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:660d3434019322ea5a8f98139a4ce9b9f21d57e091b4280e5bab1944afed3a6d", size = 16550091, upload-time = "2025-06-25T22:58:08.754Z" },
-    { url = "https://files.pythonhosted.org/packages/4e/c3/a17990fefcb1f85ef4c51aed091215acc59bbdab908321f7254c73ed8e82/antspyx-0.6.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:69523d1e3dc1c6d211adb985cc4eae4e07ccea63c0af223a03c2a8433c90f267", size = 22381229, upload-time = "2025-06-25T22:58:10.593Z" },
-    { url = "https://files.pythonhosted.org/packages/0e/31/05fac5a38ff0427629dac1e2016c32e8d965ff4e18c87f1cc36df5e141ab/antspyx-0.6.1-cp313-cp313-win_amd64.whl", hash = "sha256:5b788fe653eddc3c20c121c16e67ed6a695f1d507e5d48b2757b835cec64334c", size = 8805034, upload-time = "2025-06-25T22:58:12.962Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/98/3a746acf68f36fdaabb7fe6468abbe647946dc3c27b32faf67fd76944df0/antspyx-0.6.3-cp310-cp310-macosx_14_0_arm64.whl", hash = "sha256:9bd8a3c8848af489ba58eeab66dc82762f87d0b8a242cab8f91d8f00e8ecf9aa", size = 16646614, upload-time = "2026-02-24T01:45:19.878Z" },
+    { url = "https://files.pythonhosted.org/packages/2a/47/f67884df5806d5828ce3afce073fcc0bed902f5342239a9e99e0adfa58a9/antspyx-0.6.3-cp310-cp310-macosx_15_0_x86_64.whl", hash = "sha256:4b5b06d8070490337c7fa61bb83ad00f762805ff6f7aed2341a0617baef4958b", size = 18623837, upload-time = "2026-02-24T01:45:22.349Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/6b/d0a2d3d88b639b3cc8a7a947521b70bdf3c08c9e1c678726d6f552ab95aa/antspyx-0.6.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:17078508ea8ac15c814f9db0973203f6d08a5ef9267deb1a8975e2b96e74d10a", size = 22444480, upload-time = "2026-02-24T01:45:24.645Z" },
+    { url = "https://files.pythonhosted.org/packages/72/c7/229bcb0d2fad8a827351a84dbebf4609a389b49f4903c9e0e37ac60295a5/antspyx-0.6.3-cp310-cp310-win_amd64.whl", hash = "sha256:73b14988124e296e7b165d54626ec4c9a6f766ab44f78d0597c12af66435cd40", size = 8785898, upload-time = "2026-02-24T01:45:26.954Z" },
+    { url = "https://files.pythonhosted.org/packages/90/c1/0eb2a0a0221da6f858b133161684c2d73021f5b0dc13b6d61e86349be4a3/antspyx-0.6.3-cp311-cp311-macosx_14_0_arm64.whl", hash = "sha256:7ab4e22a45699fca63c29f717eb180e3ddf38934dca26eabd19f03b02935c40f", size = 16646239, upload-time = "2026-02-24T01:45:28.723Z" },
+    { url = "https://files.pythonhosted.org/packages/cc/d3/995fe54b400d34b51fd42bde535db733d86a14d05eeaaeb7ed84fba3f813/antspyx-0.6.3-cp311-cp311-macosx_15_0_x86_64.whl", hash = "sha256:d3c38e21cb7298808acf89eb5f10a92f4dbf67adab56d878b7b024d2c565770b", size = 18623765, upload-time = "2026-02-24T01:45:31.116Z" },
+    { url = "https://files.pythonhosted.org/packages/a7/f0/52bc532820120fbc0e8fd934bd3020eab27afd116c3a6a5e7719f088f45d/antspyx-0.6.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d986ac7800d8fe3e3578fb81c229e588586ed3438457a46101821d761e797393", size = 22442579, upload-time = "2026-02-24T01:45:33.708Z" },
+    { url = "https://files.pythonhosted.org/packages/14/b1/3d267884f1fc626248ce73091eaff0a923037c05e21fdd6321c9cf7a6d08/antspyx-0.6.3-cp311-cp311-win_amd64.whl", hash = "sha256:39a29ba5abbf3475dea70cf0d0a2472e34a5c854f99d2f08204a288f1f5aeac4", size = 8786747, upload-time = "2026-02-24T01:45:35.716Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/a4/12b5855418e5afddc588f645742c26cd2d6805cee2f745679eb06c2afc00/antspyx-0.6.3-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:e378329089f622c72eacc47e4e2c18503d0f3fbf2cc39ccb9df65880c0a7846f", size = 16637863, upload-time = "2026-02-24T01:45:37.915Z" },
+    { url = "https://files.pythonhosted.org/packages/be/e4/11956ea04c9653f5d99f7178a5e06daa7fc43b7a08a3a274879d49eeb302/antspyx-0.6.3-cp312-cp312-macosx_15_0_x86_64.whl", hash = "sha256:68c1ee777f13398806366c339f460065ba65bcd9cc7c1daba7cfb8663e63c8f4", size = 18617303, upload-time = "2026-02-24T01:45:40.413Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/c7/e942d86dab13c19b1de024cb8891c65ef59c24985995805f648e051b4137/antspyx-0.6.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b0acddaed4b52a5374a032e5cefe483852196bc727373e18081104d6ed5faf2a", size = 22443702, upload-time = "2026-02-24T01:45:42.718Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/c7/27d9e70bddc6489f3852227748386ca293e8fa50bbee5b49ec1329f13289/antspyx-0.6.3-cp312-cp312-win_amd64.whl", hash = "sha256:a3011711704037202fcabb8da7da917fc667c99f54a694f0c1f58251e67b1a4f", size = 8786793, upload-time = "2026-02-24T01:45:45.124Z" },
+    { url = "https://files.pythonhosted.org/packages/44/53/3ebd21adb38422f833d6406e03ce64c3dc09b2e7dceade3a5448334e90f0/antspyx-0.6.3-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:0c9ec8fcee72d7c7fe0d820dbfc9d7f929db3306037be27f24b52e30ae1ccbc0", size = 16637911, upload-time = "2026-02-24T01:45:47.481Z" },
+    { url = "https://files.pythonhosted.org/packages/48/7b/22cab6981489a1b9f3fa77ae64310f5e16e165d713f360bb47c4b65c780c/antspyx-0.6.3-cp313-cp313-macosx_15_0_x86_64.whl", hash = "sha256:ff863c6592552c85e0f768c5856f52d16d79ad5af434b009da9eb0ab4c39110a", size = 18616925, upload-time = "2026-02-24T01:45:49.502Z" },
+    { url = "https://files.pythonhosted.org/packages/d8/64/c23d2eba50a0ccc4ef55e6c56b018344c4d3c21c8656e16aa4341d77435f/antspyx-0.6.3-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f91a9505a0290642bc690fcc4e26a655b36441b0aa32ece6685a73882cb6656f", size = 22443733, upload-time = "2026-02-24T01:45:51.817Z" },
+    { url = "https://files.pythonhosted.org/packages/3e/33/14afdb5f1ac1754c49642f50757eb5831cbe746c2513360b9c9ef920c4c2/antspyx-0.6.3-cp313-cp313-win_amd64.whl", hash = "sha256:bf3a1e9508a240f41fd1ff5aa2f51caa9374cc1e35816738e22a78f493fa3817", size = 8786879, upload-time = "2026-02-24T01:45:53.826Z" },
 ]
 
 [[package]]
