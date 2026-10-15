@@ -27,6 +27,48 @@ To develop the code, run
 pip install -e .[dev]
 ```
 
+## Registration with the ANTs binaries
+
+`aind_registration_utils.ants_cli` runs `antsRegistration` itself, through
+[commandants](https://github.com/AllenNeuralDynamics/commandants), with every
+setting stated on the command line. ANTs is not a Python dependency: install it
+with `commandants install-ants`, a release archive or conda-forge `ants`, and put
+its `bin` directory on `PATH` or in `$ANTSPATH`.
+
+```python
+from aind_registration_utils.ants_cli import (
+    RegistrationConfig,
+    build_registration,
+    run_syn_registration,
+)
+from aind_registration_utils.chains import SynTransform, transform_points
+
+config = RegistrationConfig.lightsheet_25um()
+reg = build_registration(template, brain, out_dir / "reg_", config,
+                         fixed_mask=template_mask, moving_mask=brain_mask)
+result = run_syn_registration(reg, threads=1, config=config)
+```
+
+`run_syn_registration` checks the ANTs version, rejects headers in µm, and writes
+`transform_information.json` (the sidecar) and `registration_provenance.json`
+(the command, ANTs version, threads and config) beside the transforms.
+
+`aind_registration_utils.chains` applies the result with SimpleITK, so consumers
+need no ANTs install. Directions name where points go, and hops chain
+registrations:
+
+```python
+brain_reg = SynTransform.from_sidecar(result.sidecar)
+tpl_to_ccf = SynTransform.from_sidecar("template_to_ccf/transform_information.json")
+pts_ccf = transform_points(
+    pts_brain, [(brain_reg, "moving_to_fixed"), (tpl_to_ccf, "moving_to_fixed")]
+)
+```
+
+Points that land outside a warp field, where ANTs silently applies only the
+affine, raise unless `outside="warn"` or `"ignore"` is given. Integration tests
+run when ANTs is found and are skipped otherwise.
+
 ## Contributing
 
 ### Linters and testing
