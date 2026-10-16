@@ -1,3 +1,9 @@
+## v0.5.0 (2026-10-16)
+
+### Feat
+
+- add ANTs CLI registration via commandants and SimpleITK transform chains
+
 ## v0.4.2 (2025-10-30)
 
 ### Fix
